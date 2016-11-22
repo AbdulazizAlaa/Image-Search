@@ -1,6 +1,7 @@
 from pycorenlp import StanfordCoreNLP
 
 def solve(text, url='http://localhost', port='9000'):
+    """This is where the magic happens."""
     text = preprocess(text)
     nlp = StanfordCoreNLP(url + ":" + port)
     output = ""
@@ -14,13 +15,20 @@ def solve(text, url='http://localhost', port='9000'):
     return persons
 
 def preprocess(text):
-    text = text.lower().split(" ")
+    """Some feature engineering."""
+    text = text.lower().replace(",", " , ").split(" ")
+    # First word is capital
+    text[0] = text[0].title()
     # And rule
     text = findAndTitle(text, "and")
+    # With rule
     text = findAndTitle(text, "with")
-    return " ".join(text)
+    # Comma rule
+    text = findAndTitle(text, ",")
+    return " ".join(text).replace(" , ", ", ")
 
 def findAndTitle(array, keyword):
+    """Turn every word after keyword into capital."""
     for idx, item in enumerate(array):
         if item == keyword:
             array[idx + 1] = array[idx + 1].title()
