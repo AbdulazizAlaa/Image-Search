@@ -1,4 +1,3 @@
 *.txt
 *.pickle
 *.pyc
-engine/cv/GlobalEntities.py
