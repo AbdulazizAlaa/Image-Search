@@ -16,3 +16,4 @@ class FaceInterface:
             cv2.imshow("face", f)
             cv2.waitKey(0)
         return faces
+
