@@ -13,13 +13,15 @@ class Signup(APIView):
 		serializer = UserDataSerializer(data = request.data)
 		if(serializer.is_valid()):
 			user = User.objects.create_user(
-				serializer.data['username'],
-				serializer.data['email'],
-				serializer.data['password']
+				username = serializer.data['username'],
+				first_name = serializer.data['first_name'],
+				last_name = serializer.data['last_name'],
+				email = serializer.data['email'],
+				password = serializer.data['password'],
 				)
 			#add the name because it is not with create_user method
-			user.name = serializer.data['name']
-			user.save()
+			# user.name = serializer.data['name']
+			# user.save()
 			login(request, user)
 			print ("logged")
 			text = {'valid' : True , 'errors' :"ur password"+serializer.data['password']}
@@ -37,9 +39,9 @@ class Login(APIView):
 			login(request, user)
 			serializer = UserDataSerializer(user)
 			#get rest of the data, in our case the name
-			x = self.request.user
-			text = {"valid": True, "errors": "none"}
-			return Response(text, status=status.HTTP_302_FOUND)
+			temp = self.request.user
+			text = {"valid": True, "errors": ""}
+			return Response(serializer.data, status=status.HTTP_302_FOUND)
 		else:
 			text = {'valid' : False , 'errors' : "Invalid Username or Password"}
 			return Response(text, status=status.HTTP_401_UNAUTHORIZED)
