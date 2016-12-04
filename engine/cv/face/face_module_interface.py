@@ -6,13 +6,13 @@ class FaceInterface:
 
     def number_of_faces(self, img):
         """ returns number of faces in the image (integer) """
-        faces = self.detect_faces(img)
+        [faces, faces_rects] = self.detect_faces(img)
         return len(faces)
 
     def crop_faces(self, img):
         """ returns array of cropped faces every element is an image of a face """
-        faces = self.detect_faces(img)
+        [faces, faces_rects] = self.detect_faces(img)
         for f in faces:
             cv2.imshow("face", f)
             cv2.waitKey(0)
-        return faces
+        return [faces, faces_rects]
