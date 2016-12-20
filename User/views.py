@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.renderers import TemplateHTMLRenderer
 
+ 
 class Signup(APIView):
 	def post(self, request, format = None):
 		serializer = UserDataSerializer(data = request.data)
@@ -25,12 +26,12 @@ class Signup(APIView):
 			#add the name because it is not with create_user method
 			# user.name = serializer.data['name']
 			# user.save()
-			login(request, user)
+			# login(request, user)
 			print ("logged")
 			text = {'valid' : True , 'errors' :"ur password"+serializer.data['password']}
-			return JsonResponse(serializer.data)
-
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			return Response(serializer.data)
+		else:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Login(APIView):
 	def post(self, request):
@@ -39,7 +40,7 @@ class Login(APIView):
 		user = authenticate(username=username, password=password)
 		
 		if user is not None:
-			login(request, user)
+			# login(request, user)
 			serializer = UserDataSerializer(user)
 			return JsonResponse(serializer.data, status=status.HTTP_302_FOUND)
 		else:
