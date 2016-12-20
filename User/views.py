@@ -7,7 +7,9 @@ from rest_framework import generics
 from User.models import UserData
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 class Signup(APIView):
 	def post(self, request, format = None):
 		serializer = UserDataSerializer(data = request.data)
@@ -22,21 +24,17 @@ class Signup(APIView):
 			#add the name because it is not with create_user method
 			# user.name = serializer.data['name']
 			# user.save()
-			login(request, user)
-			print ("logged")
-			text = {'valid' : True , 'errors' :"ur password"+serializer.data['password']}
 			return Response(serializer.data)
 
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
 class Login(APIView):
 	def post(self, request):
 		username = request.data.get('username')
 		password = request.data.get('password')
 		user = authenticate(username=username, password=password)
-		
 		if user is not None:
-			login(request, user)
 			serializer = UserDataSerializer(user)
 			#get rest of the data, in our case the name
 			temp = self.request.user
