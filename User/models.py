@@ -12,5 +12,9 @@ class UserData(models.Model):
 
 class Image(models.Model):
 	image = models.ImageField(upload_to = "images/" )
-	# def __str__ (self):
-	# 	return self.image.url
+
+		# def __str__(self):
+		# 	return self.user.username
+
+
+# Create your models here
