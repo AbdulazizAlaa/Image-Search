@@ -2,4 +2,7 @@
 *.pickle
 *.pyc
 */settings.py
+*/*.*~
+*.jpg
+*.png
 engine/cv/GlobalEntities.py
