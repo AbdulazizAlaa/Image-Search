@@ -26,10 +26,10 @@ class Signup(APIView):
 			# user.save()
 
 			print ("logged")
-			text = {'valid' : True , 'errors' :"ur password"+serializer.data['password']}
-			return Response(serializer.data)
-		
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			text = {'status' : 1 , 'data': serializer.data}
+			return Response(text, status=status.HTTP_200_OK)
+		text = {'status' : -2 , 'data':serializer.errors}
+		return Response(text, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Login(APIView):
@@ -42,10 +42,10 @@ class Login(APIView):
 			serializer = UserDataSerializer(user)
 			#get rest of the data, in our case the name
 			temp = self.request.user
-			text = {"valid": True, "errors": ""}
-			return Response(serializer.data, status=status.HTTP_302_FOUND)
+			text = {"status": 2, 'data':serializer.data}
+			return Response(text, status=status.HTTP_200_OK)
 		else:
-			text = {'valid' : False , 'errors' : "Invalid Username or Password"}
+			text = {'status' : -1 , 'data' : serializer.errors}
 			return Response(text, status=status.HTTP_401_UNAUTHORIZED)
 
 class Logout(APIView):
