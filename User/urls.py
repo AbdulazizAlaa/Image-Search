@@ -6,7 +6,10 @@ urlpatterns = [
 	url(r'^login/?$', views.Login().as_view()),
 	url(r'^signup/?$', views.Signup().as_view()),
 	url(r'^logout/?$', views.Logout().as_view()),
-	url(r'^trail/?$', views.ImageUpload().as_view())
+	url(r'^trail/?$', views.ImageUpload().as_view()),
+	url(r'^loginadmin/?$', views.LoginAdmin().as_view()),
+
+
 
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)	#no need

@@ -24,7 +24,7 @@ SECRET_KEY = 'baz^+ip1ik4_fla*zg$9q#37e(5jg6tmnwzj4btqw@nw=si)+('
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-CSRF_COOKIE_SECURE = False
+# CSRF_COOKIE_SECURE = False
 ALLOWED_HOSTS = []
 
 
