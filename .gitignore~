@@ -2,4 +2,3 @@
 *.pickle
 *.pyc
 */settings.py
-engine/cv/GlobalEntities.py
