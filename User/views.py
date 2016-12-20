@@ -13,12 +13,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 class Signup(APIView):
 	def post(self, request, format = None):
 		serializer = UserDataSerializer(data = request.data)
-		if (not "first_name" in request.data.keys()):
-			request.data['first_name']= ""
-		if (not "last_name" in request.data.keys()):
-			request.data['last_name']= ""
-			
-
+		
 		if(serializer.is_valid()):
 			user = User.objects.create_user(
 				username = serializer.data['username'],
