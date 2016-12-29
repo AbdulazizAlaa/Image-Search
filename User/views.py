@@ -25,6 +25,7 @@ class Signup(APIView):
 			#add the name because it is not with create_user method
 			# user.name = serializer.data['name']
 			# user.save()
+			login(request, user)
 
 			# print ("logged")
 			text = {'status' : 1 , 'data': serializer.data}
@@ -41,6 +42,8 @@ class Login(APIView):
 
 		if user is not None:
 			serializer = UserDataSerializer(user)
+			login(request, user)
+
 			#get rest of the data, in our case the name
 			temp = self.request.user
 			text = {"status": 2, 'data':serializer.data}

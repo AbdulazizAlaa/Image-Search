@@ -1,9 +1,10 @@
+from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import admin
 import os
 from urlparse import urlparse
 from uuid import uuid4
-from User.models import User
+from User.models import User, UserData
 
 # Create your models here.
 class Image(models.Model):
@@ -20,8 +21,8 @@ class Image(models.Model):
 	#         return os.path.join(path, filename)
 	#     return wrapper
 	image = models.ImageField(upload_to = "images/")
-	# uploaded_by = models.ForeignKey(User, null = True)
-	# user = models.ManyToManyField(User)
+	uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
+	user = models.ManyToManyField(User)
 	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
 		# def __str__(self):
 		# 	return self.user.username
@@ -34,10 +35,10 @@ class Image(models.Model):
 
 class Tag(models.Model):
 	tag_text = models.CharField(max_length=500)
-	image = models.ForeignKey(Image)
+	image = models.ForeignKey(Image, on_delete=models.CASCADE)
 	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
 
-	@api_view(['GET', 'POST'])
+	# @api_view(['GET', 'POST'])
 	def get_image(self, request, aid):
 		try:
 			image = Tag.objects.filter(tag_text=aid)
@@ -46,3 +47,6 @@ class Tag(models.Model):
 
 		serializer = ImageSerializer(image)
 		return Response(serializer.data)
+
+	def __str__(self):
+		return self.tag_text
