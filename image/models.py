@@ -1,10 +1,9 @@
-from __future__ import unicode_literals
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import admin
 import os
 from urlparse import urlparse
 from uuid import uuid4
+from User.models import User
 
 # Create your models here.
 class Image(models.Model):
@@ -31,4 +30,19 @@ class Image(models.Model):
 	# filename = models.CharField(max_length=1000)
 
 
-# Create your models here
+
+
+class Tag(models.Model):
+	tag_text = models.CharField(max_length=500)
+	image = models.ForeignKey(Image)
+	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
+
+	@api_view(['GET', 'POST'])
+	def get_image(self, request, aid):
+		try:
+			image = Tag.objects.filter(tag_text=aid)
+		except image.DoesNotExist :
+			raise Error404
+
+		serializer = ImageSerializer(image)
+		return Response(serializer.data)
