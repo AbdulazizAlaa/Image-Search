@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from User.serializers import UserDataSerializer, ImageSerializer
+from User.serializers import UserDataSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
-from User.models import UserData,Image
+from User.models import UserData
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -71,7 +71,3 @@ class Logout(APIView):
 		logout(request)
 		return Response({"valid": True}, status=status.HTTP_200_OK)
 
-class ImageUpload(generics.CreateAPIView):
-
-	queryset = Image.objects.all()
-	serializer_class = ImageSerializer
