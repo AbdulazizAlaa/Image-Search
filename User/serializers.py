@@ -1,4 +1,4 @@
-from User.models import UserData, Image
+from image.models import Image
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator

@@ -5,14 +5,13 @@ from django.contrib import admin
 
 
 class UserData(models.Model):
-		# name = models.CharField(max_length=100,null = True)
-		user = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
+	# name = models.CharField(max_length=100,null = True)
+	user = models.OneToOneField(User, on_delete=models.CASCADE,null=True)
 
 
 
-class Image(models.Model):
-	image = models.ImageField(upload_to = "images/" )
 
+	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
 		# def __str__(self):
 		# 	return self.user.username
 
