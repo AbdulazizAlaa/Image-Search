@@ -10,7 +10,7 @@ class ImageSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Image
-		# fields = ('field', 'image', 'image_url')
+		fields = '__all__'
 
 	def get_image_url(self, obj):
 		return obj.image.url
