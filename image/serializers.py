@@ -6,14 +6,14 @@ from rest_framework.validators import UniqueValidator
 class ImageSerializer(serializers.ModelSerializer):
 
 	# image_url = serializers.SerializerMethodField('get_image_url')
-	image = serializers.ImageField(max_length=None, use_url=True)
+	# image = serializers.ImageField(max_length=None, use_url=True)
 	
 	class Meta:
 		model = Image
-		fields = '__all__'
+		fields = ('id', 'image')
 
-	def get_image_url(self, obj):
-		return obj.image.url
+	# def get_image_url(self, obj):
+	# 	return obj.image.url
 
 class TagSerializer(serializers.ModelSerializer):
 	

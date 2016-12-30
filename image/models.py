@@ -20,9 +20,9 @@ class Image(models.Model):
 	#         # return the whole path to the file
 	#         return os.path.join(path, filename)
 	#     return wrapper
-	image = models.ImageField(upload_to = "images/")
-	uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
-	user = models.ManyToManyField(User)
+	image = models.ImageField(upload_to = 'images/')
+	# uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
+	# user = models.ManyToManyField(User)
 	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
 		# def __str__(self):
 		# 	return self.user.username
