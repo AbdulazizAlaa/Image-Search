@@ -29,7 +29,7 @@ class Signup(APIView):
 			#add the name because it is not with create_user method
 			# user.name = serializer.data['name']
 			# user.save()
-			login(request, user)
+			# login(request, user)
 
 			# print ("logged")
 			text = {'status' : 1 , 'data': serializer.data}
@@ -43,10 +43,12 @@ class Login(APIView):
 		username = request.data.get('username')
 		password = request.data.get('password')
 		user = authenticate(username=username, password=password)
+		# serializer = UserDataSerializer(data  = request.data)
+		# if(serializer.is_valid()):
 
 		if user is not None:
 			serializer = UserDataSerializer(user)
-			login(request, user)
+			# login(request, user)
 
 			#get rest of the data, in our case the name
 			temp = self.request.user
@@ -55,6 +57,8 @@ class Login(APIView):
 		else:
 			text = {'status' : -1 , 'data' : serializer.errors}
 			return Response(text, status=status.HTTP_401_UNAUTHORIZED)
+		# else:
+		# 	print("serialzer 3'alt")
 
 class LoginAdmin(APIView):
 	def post(self, request):
@@ -77,4 +81,5 @@ class Logout(APIView):
 	def get(self, request):
 		logout(request)
 		return Response({"valid": True}, status=status.HTTP_200_OK)
+
 
