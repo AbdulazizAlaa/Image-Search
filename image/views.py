@@ -14,17 +14,19 @@ class ImageUpload(APIView):
 	# serializer_class = ImageSerializer
 	def post(self, request, format=None):
 		print("in 1")
+		print(request.data)
 		serializer = ImageSerializer(data=request.data)
 		print("in 2")
 		print(request.data)
 		print (serializer.is_valid())
+		print(serializer.errors)
 		if serializer.is_valid():
 			print("in 3")
 			serializer.save()
-			return Response(serializer.data)
+			return Response('status': 1, 'data':serializer.data)
 		else:
-			return Response(serializer.errors)
-		print(serializer.errors)
+			return Response('status':0, 'data':serializer.errors)
+		
 class RenderImage(generics.CreateAPIView):
 
 	queryset = Tag.objects.all()

@@ -6,6 +6,11 @@ from urlparse import urlparse
 from uuid import uuid4
 from User.models import User, UserData
 
+
+def my_upload_to(instance, filename):
+    # "instance" is an instance of Image
+    # return a path here
+    return 'images/' + instance.id
 # Create your models here.
 class Image(models.Model):
 	# def path_and_rename(path):
@@ -20,7 +25,7 @@ class Image(models.Model):
 	#         # return the whole path to the file
 	#         return os.path.join(path, filename)
 	#     return wrapper
-	image = models.ImageField(upload_to = 'images/')
+	image = models.ImageField(upload_to = my_upload_to)
 	# uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
 	# user = models.ManyToManyField(User)
 	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
