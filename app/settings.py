@@ -25,7 +25,7 @@ SECRET_KEY = 'baz^+ip1ik4_fla*zg$9q#37e(5jg6tmnwzj4btqw@nw=si)+('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # CSRF_COOKIE_SECURE = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ubuntu@ec2-54-202-250-196.us-west-2.compute.amazonaws.com]
 
 
 # Application definition
@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ImageSearchDB',
         'USER': 'root',
-        'PASSWORD': '1234',
+        'PASSWORD': '123456',
 
         'HOST': 'localhost',
         'PORT': '',
