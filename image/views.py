@@ -35,7 +35,7 @@ class ImageUpload(APIView):
 class RenderImage(APIView):
 	def post(self, request):
 		print(request.data)
-		serializer = TagSerializer(data = request.data)
+		serializer = ImageSerializer(data = request.data)
 		if(serializer.is_valid()):
 			tags = serializer.data['tags']
 			output = {}
