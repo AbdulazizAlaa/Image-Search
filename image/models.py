@@ -39,7 +39,7 @@ class Image(models.Model):
 
 
 class Tag(models.Model):
-	tag = models.CharField(max_length= 5)
+	tag = models.CharField(max_length= 1000, blank=True)
 	# image = models.ForeignKey(Image, on_delete=models.CASCADE)
 	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
 

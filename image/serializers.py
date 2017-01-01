@@ -11,13 +11,13 @@ class TagSerializer(serializers.ModelSerializer):
 		# fields = ('field', 'image', 'image_url')
 
 class ImageSerializer(serializers.ModelSerializer):
-	tag = TagSerializer(many = True)
+	tag = TagSerializer(read_only = True, many = True)
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
 	
 	class Meta:
 		model = Image
-		fields = ('image',)
+		fields = ('image', 'tag',)
 
 	# def get_image_url(self, obj):
 	# 	return obj.image.url

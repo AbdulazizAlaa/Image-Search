@@ -29,17 +29,20 @@ class ImageUpload(APIView):
 			text = {'status': 1, 'data':serializer.data}
 			return Response(text)
 		else:
-			text = {'status':0, 'data':serializer.errors}
+			text = {'status':-1, 'data':serializer.errors}
 			return Response(text)
 		
 class RenderImage(APIView):
 	def post(self, request):
 		print(request.data)
-		serializer = TagSerializer(data = request.data)
+		serializer = ImageSerializer(data = request.data)
+		print(serializer.is_valid())
 		if(serializer.is_valid()):
-			tags = serializer.data['tags']
+			print("1")
+			tags = serializer.data['tag']
 			output = {}
 			images = Image.objects.get(id = tags)
+			print("2")
 			# output['image'] = serializer.data
 			for image in images:
 				output.append(image.url)
