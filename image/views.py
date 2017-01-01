@@ -6,7 +6,7 @@ from image.serializers import ImageSerializer, TagSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag
-
+from django.http import JsonResponse
 # Create your views here.
 class ImageUpload(APIView):
 
@@ -23,13 +23,24 @@ class ImageUpload(APIView):
 		if serializer.is_valid():
 			print("in 3")
 			serializer.save()
+			# print(request.data['image'])
+			# temp = Image.objects.get(id = request.data['image'])
+			# print(temp)
 			text = {'status': 1, 'data':serializer.data}
 			return Response(text)
 		else:
 			text = {'status':0, 'data':serializer.errors}
 			return Response(text)
 		
-class RenderImage(generics.CreateAPIView):
-
-	queryset = Tag.objects.all()
-	serializer_class = TagSerializer
+class RenderImage(APIView):
+	def get(self, request):
+		myid = request.data['id']
+		output = []
+		images = Image.objects.get(id = myid)
+		for image in images:
+			output.append(image.url)
+		text = {'data':output}
+		return JsonResponse(text)
+		# serializer = TagSerializer(data = request.data)
+		# if(serializer.is_valid()):
+		# 	serializer.save()

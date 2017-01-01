@@ -7,10 +7,10 @@ from uuid import uuid4
 from User.models import User, UserData
 
 
-def my_upload_to(instance, filename):
-    # "instance" is an instance of Image
-    # return a path here
-    return 'images/' + instance.id
+# def my_upload_to(instance, filename):
+#     # "instance" is an instance of Image
+#     # return a path here
+#     return 'images/' + instance.id
 # Create your models here.
 class Image(models.Model):
 	# def path_and_rename(path):
@@ -25,7 +25,7 @@ class Image(models.Model):
 	#         # return the whole path to the file
 	#         return os.path.join(path, filename)
 	#     return wrapper
-	image = models.ImageField(upload_to = my_upload_to)
+	image = models.ImageField(upload_to = 'images/')
 	# uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
 	# user = models.ManyToManyField(User)
 	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
@@ -39,19 +39,19 @@ class Image(models.Model):
 
 
 class Tag(models.Model):
-	tag_text = models.CharField(max_length=500)
+	# tag_text = models.CharField(max_length=500)
 	image = models.ForeignKey(Image, on_delete=models.CASCADE)
-	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
+	# imageRelation = models.ManyToManyField(Image, related_name = 'tags')
 
 	# @api_view(['GET', 'POST'])
-	def get_image(self, request, aid):
-		try:
-			image = Tag.objects.filter(tag_text=aid)
-		except image.DoesNotExist :
-			raise Error404
+	# def get_image(self, request, aid):
+	# 	try:
+	# 		image = Tag.objects.filter(tag_text=aid)
+	# 	except image.DoesNotExist :
+	# 		raise Error404
 
-		serializer = ImageSerializer(image)
-		return Response(serializer.data)
+	# 	serializer = ImageSerializer(image)
+	# 	return Response(serializer.data)
 
-	def __str__(self):
-		return self.tag_text
+	# def __str__(self):
+	# 	return self.tag_text
