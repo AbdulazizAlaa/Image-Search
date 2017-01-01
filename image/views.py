@@ -37,6 +37,7 @@ class RenderImage(APIView):
 		print(request.data)
 		serializer = ImageSerializer(data = request.data)
 		print(serializer.is_valid())
+
 		if(serializer.is_valid()):
 			print("1")
 			tags = serializer.data['tag']
