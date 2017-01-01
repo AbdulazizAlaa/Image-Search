@@ -6,3 +6,5 @@
 *.jpg
 *.png
 engine/cv/GlobalEntities.py
+*.rar
+*.sql*
