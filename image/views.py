@@ -33,13 +33,19 @@ class ImageUpload(APIView):
 			return Response(text)
 		
 class RenderImage(APIView):
-	def get(self, request):
-		myid = request.data['id']
-		output = []
-		images = Image.objects.get(id = myid)
-		for image in images:
-			output.append(image.url)
-		text = {'data':output}
+	def post(self, request):
+		print(request.data)
+		serializer = TagSerializer(data = request.data)
+		if(serializer.is_valid()):
+			tags = serializer.data['tags']
+			output = {}
+			images = Image.objects.get(id = tags)
+			# output['image'] = serializer.data
+			for image in images:
+				output.append(image.url)
+			text = {'status': 1, 'data':output}
+		else:
+			text = {'status':-1, 'data':serializer.errors}
 		return JsonResponse(text)
 		# serializer = TagSerializer(data = request.data)
 		# if(serializer.is_valid()):

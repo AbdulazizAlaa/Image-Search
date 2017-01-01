@@ -3,8 +3,15 @@ from image.models import Image, Tag
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-class ImageSerializer(serializers.ModelSerializer):
 
+class TagSerializer(serializers.ModelSerializer):
+	
+	class Meta:
+		model = Tag
+		# fields = ('field', 'image', 'image_url')
+
+class ImageSerializer(serializers.ModelSerializer):
+	tag = TagSerializer(many = True)
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
 	
@@ -15,8 +22,3 @@ class ImageSerializer(serializers.ModelSerializer):
 	# def get_image_url(self, obj):
 	# 	return obj.image.url
 
-class TagSerializer(serializers.ModelSerializer):
-	
-	class Meta:
-		model = Tag
-		# fields = ('field', 'image', 'image_url')

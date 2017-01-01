@@ -39,9 +39,9 @@ class Image(models.Model):
 
 
 class Tag(models.Model):
-	# tag_text = models.CharField(max_length=500)
-	image = models.ForeignKey(Image, on_delete=models.CASCADE)
-	# imageRelation = models.ManyToManyField(Image, related_name = 'tags')
+	tag = models.CharField(max_length= 5)
+	# image = models.ForeignKey(Image, on_delete=models.CASCADE)
+	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
 
 	# @api_view(['GET', 'POST'])
 	# def get_image(self, request, aid):
