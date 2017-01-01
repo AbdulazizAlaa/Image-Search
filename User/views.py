@@ -34,7 +34,7 @@ class Signup(APIView):
 			# print ("logged")
 			text = {'status' : 1 , 'data': serializer.data}
 			return Response(text, status=status.HTTP_200_OK)
-		text = {'status' : -2 , 'data':serializer.errors}
+		text = {'status' : -1 , 'data':serializer.errors}
 		return Response(text, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -55,7 +55,7 @@ class Login(APIView):
 			text = {"status": 2, 'data':serializer.data}
 			return Response(text, status=status.HTTP_200_OK)
 		else:
-			text = {'status' : -1 , 'data' : serializer.errors}
+			text = {'status' : -2 , 'data' : serializer.errors}
 			return Response(text, status=status.HTTP_401_UNAUTHORIZED)
 		# else:
 		# 	print("serialzer 3'alt")
