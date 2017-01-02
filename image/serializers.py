@@ -8,11 +8,11 @@ class TagSerializer(serializers.ModelSerializer):
 	
 	class Meta:
 		model = Tag
-		# fields = ('field', 'image', 'image_url')
+		fields = ('tag',)
 
-class ImageSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):#test
 
-	tag = TagSerializer(many = True, read_only=True)
+	tag = TagSerializer(many = True, read_only=True)#ques
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
 	
