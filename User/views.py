@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from User.serializers import UserDataSerializer
+from User.serializers import UserDataSerializer, UserLoginSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
 from User.models import UserData
@@ -33,9 +33,15 @@ class Signup(APIView):
 
 			# print ("logged")
 			text = {'status' : 1 , 'data': serializer.data}
-			return Response(text, status=status.HTTP_200_OK)
+			return JsonResponse(text, status=status.HTTP_200_OK)
+		print(serializer.errors)
+		print(type(serializer.errors))
+
+		print((serializer.data))
+		print(type(serializer.data))
+
 		text = {'status' : -1 , 'data':serializer.errors}
-		return Response(text, status=status.HTTP_400_BAD_REQUEST)
+		return JsonResponse(text, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Login(APIView):
@@ -45,9 +51,11 @@ class Login(APIView):
 		user = authenticate(username=username, password=password)
 		# serializer = UserDataSerializer(data  = request.data)
 		# if(serializer.is_valid()):
+		serializer = UserLoginSerializer(data = request.data)
 
-		if user is not None:
-			serializer = UserDataSerializer(user)
+
+		if serializer.is_valid():
+			# serializer = UserDataSerializer(user)
 			# login(request, user)
 
 			#get rest of the data, in our case the name
