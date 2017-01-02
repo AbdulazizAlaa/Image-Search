@@ -7,10 +7,11 @@ from uuid import uuid4
 from User.models import User, UserData
 
 
-# def my_upload_to(instance, filename):
-#     # "instance" is an instance of Image
-#     # return a path here
-#     return 'images/' + instance.id
+
+def my_upload_to(instance, filename):
+    # "instance" is an instance of Image
+    # return a path here
+    return 'images/' + str(instance.id)
 # Create your models here.
 class Image(models.Model):
 	# def path_and_rename(path):
