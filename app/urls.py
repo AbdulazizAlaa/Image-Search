@@ -21,7 +21,7 @@ from django.views.generic import TemplateView
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='landing/landing.html')),
+    url(r'^$', TemplateView.as_view(template_name='landing/index.html')),
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('User.urls')),
     url(r'^image/', include('image.urls')),

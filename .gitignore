@@ -3,8 +3,6 @@
 *.pyc
 */settings.py
 */*.*~
-*.jpg
-*.png
 engine/cv/GlobalEntities.py
 *.rar
 *.sql*
