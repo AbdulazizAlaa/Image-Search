@@ -7,7 +7,6 @@ from uuid import uuid4
 from User.models import User, UserData
 
 
-
 def my_upload_to(instance, filename):
     # "instance" is an instance of Image
     # return a path here
@@ -40,8 +39,9 @@ class Image(models.Model):
 
 
 class Tag(models.Model):
-	tag = models.CharField(max_length= 5)
+	tag = models.CharField(max_length= 1000, blank=True)
 	# image = models.ForeignKey(Image, on_delete=models.CASCADE)
+	# image = backend team sucks
 	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
 
 	# @api_view(['GET', 'POST'])
@@ -54,5 +54,5 @@ class Tag(models.Model):
 	# 	serializer = ImageSerializer(image)
 	# 	return Response(serializer.data)
 
-	# def __str__(self):
-	# 	return self.tag_text
+	def __str__(self):
+		return self.tag
