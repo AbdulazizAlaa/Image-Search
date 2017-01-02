@@ -21,9 +21,20 @@ from django.views.generic import TemplateView
 admin.autodiscover()
 
 urlpatterns = [
+    # Matches the root route (Our landing page)
     url(r'^$', TemplateView.as_view(template_name='landing/index.html')),
+    # Matches our SPA root
+    url(r'^home/', TemplateView.as_view(template_name='spa/index.html')),
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('User.urls')),
     url(r'^image/', include('image.urls')),
    	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    # I added this route to catch any failing routes, this is a hack
+    # to pass routes that were not found by Django to React, this
+    # way we can be sure if a user enters a link that is handled
+    # by React's router that Django will not block the user's
+    # request.
+    url(r'^.*', TemplateView.as_view(template_name='spa/index.html'))
+    
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_URL)
