@@ -17,7 +17,7 @@ when we import from the app the import will look like
 This way we keep our work modular and easily accessible by the API.
 
 
-### Modifying System path
+### Modifying System path (IGNORE, Django already does it)
 Before we can import our engine we need to let python know where to find our engine.
 
 In order to do this we need to modify the System path, this is where python looks for modules.
