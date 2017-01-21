@@ -9,7 +9,6 @@ from image.models import Image, Tag
 from app import settings
 from django.http import JsonResponse
 from engine.nlp.ner import NER
-from django.contrib.sites.models import Site
 # Create your views here.
 class ImageUpload(APIView):
 
