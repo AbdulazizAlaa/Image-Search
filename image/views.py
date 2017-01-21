@@ -37,7 +37,11 @@ class ImageUpload(APIView):
 class RenderImage(APIView):
 	def get(self, request, format = None):
 
-		Tags = NER.solve(request.GET.get("q"))
+		text = request.GET.get("q")
+		if(type(text) == unicode):
+			text = text.encode("ascii", "ignore")
+
+		Tags = NER.solve(text)
 		#Tags = ["Nada", "Omar"]
 		
 		# Params of the serializer
