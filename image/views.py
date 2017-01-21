@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag
 from django.http import JsonResponse
+from engine.nlp.ner import NER
+
 # Create your views here.
 class ImageUpload(APIView):
 
@@ -33,24 +35,45 @@ class ImageUpload(APIView):
 			return Response(text)
 		
 class RenderImage(APIView):
-	def post(self, request):
-		print(request.data)
-		serializer = ImageSerializer(data = request.data)
-		print(serializer.is_valid())
 
-		if(serializer.is_valid()):
-			print("1")
-			tags = serializer.data['tag']
-			output = {}
-			images = Image.objects.get(id = tags)
-			print("2")
-			# output['image'] = serializer.data
-			for image in images:
-				output.append(image.url)
-			text = {'status': 1, 'data':output}
-		else:
-			text = {'status':-1, 'data':serializer.errors}
-		return JsonResponse(text)
+	def post(self, request):
+		# Read request and extract text
+		text = request.data
+		# Transform text into tags
+		#tags = NER.solve(text)
+		tags = ['Omar', 'Hadeer']
+		# Initialize output array
+		output = []
+		# For each tag search all relevant images
+		for tag in tags:
+			# Get relevant images
+			
+			# Get image's urls
+
+			# Add them to output
+
+
+	# def post(self, request):
+	# 	print(request.data)
+	# 	serializer = ImageSerializer(data = request.data)
+		
+	# 	print(serializer.is_valid())
+
+	# 	if(serializer.is_valid()):
+	# 		print("1")
+	# 		tags = serializer.data['tag']
+	# 		output = {}
+	# 		images = Image.objects.get(id = tags)
+	# 		print("2")
+	# 		# output['image'] = serializer.data
+	# 		for image in images:
+	# 			output.append(image.url)
+	# 		text = {'status': 1, 'data':output}
+	# 	else:
+	# 		text = {'status':-1, 'data':serializer.errors}
+	# 	return JsonResponse(text)
+
+
 		# serializer = TagSerializer(data = request.data)
 		# if(serializer.is_valid()):
 		# 	serializer.save()
