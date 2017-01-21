@@ -2,11 +2,14 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from image.serializers import ImageSerializer, TagSerializer
+from image.serializers import ImageRetrieveSerializer, ImageUploadSerializer, TagSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag
+from app import settings
 from django.http import JsonResponse
+from engine.nlp.ner import NER
+from django.contrib.sites.models import Site
 # Create your views here.
 class ImageUpload(APIView):
 
@@ -15,7 +18,7 @@ class ImageUpload(APIView):
 	def post(self, request, format=None):
 		print("in 1")
 		print(request.data)
-		serializer = ImageSerializer(data=request.data)
+		serializer = ImageUploadSerializer(data=request.data)
 		print("in 2")
 		print(request.data)
 		print (serializer.is_valid())
@@ -33,24 +36,49 @@ class ImageUpload(APIView):
 			return Response(text)
 		
 class RenderImage(APIView):
-	def post(self, request):
-		print(request.data)
-		serializer = ImageSerializer(data = request.data)
-		print(serializer.is_valid())
+	def get(self, request, format = None):
 
+		Tags = NER.solve(request.GET.get("q"))
+		#Tags = ["Nada", "Omar"]
+		
+		# Params of the serializer
+		params = []
+		for tag in Tags:
+			params.append({'tag': tag})
+
+		# Serialize input data
+		serializer = ImageRetrieveSerializer(data={'Tags': params})
+		
+		# Array for all images urls
+		output = []
+		
+		# Check validation
 		if(serializer.is_valid()):
-			print("1")
-			tags = serializer.data['tag']
-			output = {}
-			images = Image.objects.get(id = tags)
-			print("2")
-			# output['image'] = serializer.data
-			for image in images:
-				output.append(image.url)
+			# Check if no tags
+			if len(Tags) == 0:
+				return JsonResponse({'status': 1, 'data': []})
+
+			# For each Tag, get all images it is in
+			# And append their URLs to the output
+			for tag in Tags:
+				# Get return image instance
+				tag_models = Tag.objects.filter(tag = tag)
+
+				# For each model, get its images' URLs
+				for tag_model in tag_models:
+					if len(tag_model.Images.all()) == 0:
+						continue
+
+					# For each image in the tag model
+					for image in tag_model.Images.all():
+						output.append("/" + str(image.image.url))
+				
 			text = {'status': 1, 'data':output}
 		else:
 			text = {'status':-1, 'data':serializer.errors}
 		return JsonResponse(text)
+
+
 		# serializer = TagSerializer(data = request.data)
 		# if(serializer.is_valid()):
 		# 	serializer.save()

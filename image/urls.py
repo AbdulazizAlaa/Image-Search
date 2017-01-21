@@ -5,7 +5,7 @@ urlpatterns = [
 
 	
 	url(r'^trail/?$', views.ImageUpload().as_view()),
-	url(r'^tags/?$', views.RenderImage().as_view()),
+	url(r'^search/?$', views.RenderImage().as_view()),
 
 
 
