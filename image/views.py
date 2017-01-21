@@ -39,15 +39,24 @@ class RenderImage(APIView):
 	def post(self, request):
 		# Read request and extract text
 		text = request.data
+
 		# Transform text into tags
 		#tags = NER.solve(text)
 		tags = ['Omar', 'Hadeer']
+		
 		# Initialize output array
 		output = []
+		
 		# For each tag search all relevant images
 		for tag in tags:
 			# Get relevant images
-			
+			tag_model = Tag.objects.filter(tag = tag)
+			if(len(tag_model) == 0):
+				continue
+
+			for item in tag_model:
+				image = item.imageRelation
+				output.append(image.url)
 			# Get image's urls
 
 			# Add them to output
