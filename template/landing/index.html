@@ -12,7 +12,7 @@
     <title>Whimsy</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/landing/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -20,26 +20,26 @@
     <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
 
     <!-- Plugin CSS -->
-    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="vendor/simple-line-icons/css/simple-line-icons.css">
-    <link rel="stylesheet" href="vendor/device-mockups/device-mockups.min.css">
+    <link rel="stylesheet" href="static/landing/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="static/landing/vendor/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="static/landing/vendor/device-mockups/device-mockups.min.css">
 
     <!-- Theme CSS -->
-    <link href="css/new-age.min.css" rel="stylesheet">
+    <link href="static/landing/css/new-age.min.css" rel="stylesheet">
     
     
         
     <!-- jQuery -->
-    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="static/landing/vendor/jquery/jquery.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/landing/vendor/bootstrap/js/bootstrap.min.js"></script>
 
     <!-- Plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
     <!-- Theme JavaScript -->
-    <script src="js/new-age.min.js"></script>
+    <script src="static/landing/js/new-age.min.js"></script>
     
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -47,7 +47,6 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
     <script type="text/javascript">
                 
                 $(document).ready(function () {
@@ -76,7 +75,7 @@
             type: "POST",
             crossDomain: true,
             dataType: "json",
-            url: "http://192.168.1.69:9000/user/login",
+            url: "/user/login",
             data: {
               username: username,
               password: password
@@ -101,7 +100,7 @@
           $.ajax({
             type: "POST",
             crossDomain: true,
-            url: "http://192.168.1.69:9000/user/signup",
+            url: "/user/signup",
             dataType: "json",
             data: {
               username:username,
@@ -147,7 +146,7 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a class="page-scroll" href="#getstarted">Get Started</a>
+                        <a class="page-scroll" href="#download">Get Started</a>
                     </li>
                     <li>
                         <a class="page-scroll" href="#features">Features</a>
@@ -171,7 +170,7 @@
                     <div class="header-content">
                         <div class="header-content-inner">
                             <h1>Image Search makes your memories more memorable.</h1>
-                            <a href="#getstarted" class="btn btn-outline btn-xl page-scroll">Get Started</a>
+                            <a href="#download" class="btn btn-outline btn-xl page-scroll">Get Started</a>
                         </div>
                     </div>
                 </div>
@@ -181,7 +180,7 @@
                             <div class="device">
                                 <div class="screen">
                                     <!-- Demo image for screen mockup, you can put an image here, some HTML, an animation, video, or anything else! -->
-                                    <img src="img/demo-screen-1.jpg" class="img-responsive" alt="">
+                                    <img src="static/landing/img/demo-screen-1.jpg" class="img-responsive" alt="">
                                 </div>
                                 <div class="button">
                                     <!-- You can hook the "home button" to some JavaScript events or just remove it -->
@@ -194,7 +193,7 @@
         </div>
     </header>
 
-    <section id="getstarted" class="download bg-primary text-center">
+    <section id="download" class="download bg-primary text-center">
         <div class="container">
             <div class="row">
                 <div class="col-md-8 col-md-offset-2">
@@ -227,7 +226,7 @@
                             <div class="device">
                                 <div class="screen">
                                     <!-- Demo image for screen mockup, you can put an image here, some HTML, an animation, video, or anything else! -->
-                                    <img src="img/demo-screen-1.jpg" class="img-responsive" alt=""> </div>
+                                    <img src="static/landing/img/demo-screen-1.jpg" class="img-responsive" alt=""> </div>
                                 <div class="button">
                                     <!-- You can hook the "home button" to some JavaScript events or just remove it -->
                                 </div>
@@ -303,7 +302,7 @@
     -->
     <footer>
         <div class="container">
-            <p>&copy; 2017 Whimsy. All Rights Reserved.</p>
+            <p>&copy; 2016 Start Bootstrap. All Rights Reserved.</p>
             <ul class="list-inline">
                 <li>
                     <a href="#">Privacy</a>
