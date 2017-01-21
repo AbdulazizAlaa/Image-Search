@@ -6,19 +6,37 @@ from rest_framework.validators import UniqueValidator
 
 class TagSerializer(serializers.ModelSerializer):
 	
+	tag = serializers.CharField()
+
 	class Meta:
 		model = Tag
-		fields = ('tag',)
+		# Input to the tag serializer
+		fields = ['tag']
 
-class ImageSerializer(serializers.ModelSerializer):#test
-
-	tag = TagSerializer(many = True, read_only=True)#ques
+class ImageRetrieveSerializer(serializers.ModelSerializer):#test
+	# image = serializers.CharField()
+	#id = serializers.IntegerField()
+	# Parameter many was used to serialize a list instead of 1 string
+	Tags = TagSerializer(required=True, many=True)
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
 	
 	class Meta:
 		model = Image
-		fields = ('image', 'tag',)
+		# The input to the ImageRetrieveSerializer
+		# This should include the input to the TagSerializer
+		fields = ['Tags']
+
+
+class ImageUploadSerializer(serializers.ModelSerializer):#test
+	
+	# tag = TagSerializer(many = True, read_only=True)#ques
+	# image_url = serializers.SerializerMethodField('get_image_url')
+	# image = serializers.ImageField(max_length=None, use_url=True)
+	
+	class Meta:
+		model = Image
+		fields = ('image',)
 
 
 	# def get_image_url(self, obj):
