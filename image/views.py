@@ -9,11 +9,10 @@ from image.models import Image, Tag
 from app import settings
 from django.http import JsonResponse
 from engine.nlp.ner import NER
+
 # Create your views here.
 class ImageUpload(APIView):
 
-	# queryset = Image.objects.all()
-	# serializer_class = ImageSerializer
 	def post(self, request, format=None):
 		print("in 1")
 		print(request.data)
@@ -25,13 +24,10 @@ class ImageUpload(APIView):
 		if serializer.is_valid():
 			print("in 3")
 			serializer.save()
-			# print(request.data['image'])
-			# temp = Image.objects.get(id = request.data['image'])
-			# print(temp)
-			text = {'status': 1, 'data':serializer.data}
+			text = {'status': 1, 'images':serializer.data}
 			return Response(text)
 		else:
-			text = {'status':-1, 'data':serializer.errors}
+			text = {'status':-1, 'images':serializer.errors}
 			return Response(text)
 		
 class RenderImage(APIView):
@@ -42,7 +38,6 @@ class RenderImage(APIView):
 			text = text.encode("ascii", "ignore")
 
 		Tags = NER.solve(text)
-		#Tags = ["Nada", "Omar"]
 		
 		# Params of the serializer
 		params = []
@@ -59,7 +54,7 @@ class RenderImage(APIView):
 		if(serializer.is_valid()):
 			# Check if no tags
 			if len(Tags) == 0:
-				return JsonResponse({'status': 1, 'data': []})
+				return JsonResponse({'status': 1, 'images': []})
 
 			# For each Tag, get all images it is in
 			# And append their URLs to the output
@@ -76,12 +71,7 @@ class RenderImage(APIView):
 					for image in tag_model.Images.all():
 						output.append("/" + str(image.image.url))
 				
-			text = {'status': 1, 'data':output}
+			text = {'status': 1, 'images':output}
 		else:
-			text = {'status':-1, 'data':serializer.errors}
+			text = {'status':-1, 'images':serializer.errors}
 		return JsonResponse(text)
-
-
-		# serializer = TagSerializer(data = request.data)
-		# if(serializer.is_valid()):
-		# 	serializer.save()
