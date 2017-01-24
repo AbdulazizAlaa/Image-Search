@@ -12,11 +12,12 @@ from rest_framework.renderers import TemplateHTMLRenderer
 
 class Signup(APIView):
 	def post(self, request, format = None):
-		serializer = UserDataSerializer(data = request.data)
-		if (not "first_name" in request.data.keys()):
-			request.data['first_name']= ""
-		if (not "last_name" in request.data.keys()):
-			request.data['last_name']= ""
+		user = request.data.get('user')
+		serializer = UserDataSerializer(data = user)
+		if (not "first_name" in user.keys()):
+			user['first_name']= ""
+		if (not "last_name" in user.keys()):
+			user['last_name']= ""
 
 		if(serializer.is_valid()):
 			user = User.objects.create_user(
@@ -26,13 +27,7 @@ class Signup(APIView):
 				email = serializer.data['email'],
 				password = serializer.data['password'],
 				)
-			#add the name because it is not with create_user method
-			# user.name = serializer.data['name']
-			# user.save()
-			# login(request, user)
-
-			# print ("logged")
-			text = {'status' : 1 , 'data': serializer.data}
+			text = {'status' : 1 , 'user': serializer.data}
 			return JsonResponse(text, status=status.HTTP_200_OK)
 		print(serializer.errors)
 		print(type(serializer.errors))
@@ -40,33 +35,26 @@ class Signup(APIView):
 		print((serializer.data))
 		print(type(serializer.data))
 
-		text = {'status' : -1 , 'data':serializer.errors}
+		text = {'status' : -1 , 'user':serializer.errors}
 		return JsonResponse(text, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Login(APIView):
 	def post(self, request):
-		username = request.data.get('username')
-		password = request.data.get('password')
+		username = request.data.get('user')['username']
+		password = request.data.get('user')['password']
 		user = authenticate(username=username, password=password)
-		# serializer = UserDataSerializer(data  = request.data)
-		# if(serializer.is_valid()):
 		serializer = UserLoginSerializer(data = request.data)
 
 
 		if serializer.is_valid():
-			# serializer = UserDataSerializer(user)
-			# login(request, user)
-
 			#get rest of the data, in our case the name
 			temp = self.request.user
-			text = {"status": 2, 'data':serializer.data}
+			text = {"status": 2, 'user':serializer.data}
 			return Response(text, status=status.HTTP_200_OK)
 		else:
-			text = {'status' : -2 , 'data' : serializer.errors}
+			text = {'status' : -2 , 'user' : serializer.errors}
 			return Response(text, status=status.HTTP_401_UNAUTHORIZED)
-		# else:
-		# 	print("serialzer 3'alt")
 
 class LoginAdmin(APIView):
 	def post(self, request):
