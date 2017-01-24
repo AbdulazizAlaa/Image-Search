@@ -14,22 +14,22 @@ class OpenFaceEngine(FaceInterface):
         self.__AlignDlib__= AlignDlib(openfaceModule+'shape_predictor_68_face_landmarks.dat')
 
     def detect_faces(self, img):
-        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+        # cv2.namedWindow("img", cv2.WINDOW_NORMAL)
         img = cv2.imread(img)
-        print "success"
+
         faces = []
         faceRects = []
         rects = []
         rects = self.__AlignDlib__.getAllFaceBoundingBoxes(img)
         for x in range(len(rects)):
             rectObject = rects[x]
-            rectPoints = (rectObject.left(), rectObject.top(), 
+            rectPoints = (rectObject.left(), rectObject.top(),
                 rectObject.right(),rectObject.bottom())
             faceRects.append(rectPoints)
         for(x, y, w, h) in faceRects:
             cv2.rectangle(img,(x,y),(w,h),(0,0,255),3)
             roi_color = img[y:h, x:w]
             faces.append(roi_color)
-        cv2.imshow('img',img)
-        cv2.waitKey(0)
-        return faces
+        # cv2.imshow('img',img)
+        # cv2.waitKey(0)
+        return [img, faces, faces_rects]

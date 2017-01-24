@@ -33,4 +33,3 @@ def findAndTitle(array, keyword):
         if item == keyword:
             array[idx + 1] = array[idx + 1].title()
     return array
-

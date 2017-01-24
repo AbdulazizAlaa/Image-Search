@@ -9,6 +9,8 @@ from image.models import Image, Tag
 from app import settings
 from django.http import JsonResponse
 from engine.nlp.ner import NER
+from engine.cv.face import opencv_engine
+import numpy as np, cv2, os
 
 # Create your views here.
 class ImageUpload(APIView):
@@ -29,7 +31,7 @@ class ImageUpload(APIView):
 		else:
 			text = {'status':-1, 'image':serializer.errors}
 			return Response(text)
-		
+
 class RenderImage(APIView):
 	def get(self, request, format = None):
 
@@ -38,7 +40,7 @@ class RenderImage(APIView):
 			text = text.encode("ascii", "ignore")
 
 		Tags = NER.solve(text)
-		
+
 		# Params of the serializer
 		params = []
 		for tag in Tags:
@@ -46,10 +48,10 @@ class RenderImage(APIView):
 
 		# Serialize input data
 		serializer = ImageRetrieveSerializer(data={'Tags': params})
-		
+
 		# Array for all images urls
 		output = []
-		
+
 		# Check validation
 		if(serializer.is_valid()):
 			# Check if no tags
@@ -67,10 +69,25 @@ class RenderImage(APIView):
 					if len(tag_model.Images.all()) == 0:
 						continue
 
-					# For each image in the tag model
+
+					if not os.path.exists('media/images/tmp'):
+						os.mkdir('media/images/tmp')
+					# opencv_engine decleration
+					f = opencv_engine.OpenCVFaceEngine("engine")
+
+					# For each image call the face detection module
 					for image in tag_model.Images.all():
-						output.append("/" + str(image.image.url))
-				
+						filename = image.image.url.split('/')[2]
+						img = cv2.imread(image.image.url, 1) #change this with any other image on your computer
+						[img, faces, faces_rects] = f.crop_faces(img)
+
+						cv2.imwrite('media/images/tmp'+filename, img)
+						output.append('/media/images/tmp'+filename)
+
+					# # For each image in the tag model
+					# for image in tag_model.Images.all():
+					# 	output.append("/" + str(image.image.url))
+
 			text = {'status': 1, 'images':output}
 		else:
 			text = {'status':-1, 'images':serializer.errors}

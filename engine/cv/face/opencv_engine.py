@@ -13,7 +13,7 @@ class OpenCVFaceEngine(FaceInterface):
 
     def detect_faces(self, img):
         """ returns array of face Rects and array of face mats. each entry represents a face. """
-        cv2.namedWindow("img", cv2.WINDOW_NORMAL)
+        # cv2.namedWindow("img", cv2.WINDOW_NORMAL)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         faces = []
@@ -23,6 +23,6 @@ class OpenCVFaceEngine(FaceInterface):
             roi_color = img[y:y+h, x:x+w]
             cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
             faces.append(roi_color)
-        cv2.imshow('img',img)
-        cv2.waitKey(0)
-        return [faces, faces_rects]
+        # cv2.imshow('img',img)
+        # cv2.waitKey(0)
+        return [img, faces, faces_rects]
