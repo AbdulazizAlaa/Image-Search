@@ -4,7 +4,7 @@ from django.contrib import admin
 import os
 from urlparse import urlparse
 from uuid import uuid4
-from User.models import User, UserData
+from User.models import User
 
 
 # def my_upload_to(instance, filename):

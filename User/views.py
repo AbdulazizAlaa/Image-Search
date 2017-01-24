@@ -5,7 +5,7 @@ from rest_framework import status
 from User.serializers import UserDataSerializer, UserLoginSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
-from User.models import UserData
+# from User.models import UserData
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.renderers import TemplateHTMLRenderer
