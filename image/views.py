@@ -24,10 +24,10 @@ class ImageUpload(APIView):
 		if serializer.is_valid():
 			print("in 3")
 			serializer.save()
-			text = {'status': 1, 'images':serializer.data}
+			text = {'status': 1, 'image':serializer.data}
 			return Response(text)
 		else:
-			text = {'status':-1, 'images':serializer.errors}
+			text = {'status':-1, 'image':serializer.errors}
 			return Response(text)
 		
 class RenderImage(APIView):
