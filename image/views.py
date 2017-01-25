@@ -9,9 +9,11 @@ from image.models import Image, Tag
 from app import settings
 from django.http import JsonResponse
 from engine.nlp.ner import NER
+from rest_framework import permissions
 
 # Create your views here.
 class ImageUpload(APIView):
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 	def post(self, request, format=None):
 		print("in 1")
@@ -31,6 +33,8 @@ class ImageUpload(APIView):
 			return Response(text)
 		
 class RenderImage(APIView):
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
 	def get(self, request, format = None):
 
 		text = request.GET.get("q")
