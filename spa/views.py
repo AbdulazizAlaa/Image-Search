@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework import permissions
+from rest_framework.views import APIView
 
 #single page app view
-class homePage(object):
+class homePage(APIView):
 	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 	
 	def get(self, Request):
