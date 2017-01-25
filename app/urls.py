@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.generic import TemplateView
+from rest_framework_jwt.views import obtain_jwt_token
 admin.autodiscover()
 
 urlpatterns = [
@@ -29,6 +30,7 @@ urlpatterns = [
     url(r'^user/', include('User.urls')),
     url(r'^image/', include('image.urls')),
    	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api-token-auth/', obtain_jwt_token),
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_URL)
