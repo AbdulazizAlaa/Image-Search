@@ -41,7 +41,7 @@ class RenderImage(APIView):
 		if(type(text) == unicode):
 			text = text.encode("ascii", "ignore")
 
-		#Tags = NER.solve(text)
+		Tags = NER.solve(text)
 		#Tags = ["Omar", "Hadeer", "Nada"]
 		# Params of the serializer
 		params = []
