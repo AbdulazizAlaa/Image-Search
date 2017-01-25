@@ -13,7 +13,7 @@ from rest_framework import permissions
 
 # Create your views here.
 class ImageUpload(APIView):
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticated,)
 
 	def post(self, request, format=None):
 		print("in 1")
@@ -33,7 +33,7 @@ class ImageUpload(APIView):
 			return Response(text)
 		
 class RenderImage(APIView):
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticated,)
 
 	def get(self, request, format = None):
 

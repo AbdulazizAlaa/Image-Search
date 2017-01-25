@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 
 #single page app view
 class homePage(APIView):
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticated,)
 	
 	def get(self, Request):
 		TemplateView.as_view(template_name='spa/index.html')
