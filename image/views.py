@@ -38,7 +38,7 @@ class RenderImage(APIView):
 			text = text.encode("ascii", "ignore")
 
 		Tags = NER.solve(text)
-		
+		#Tags = ["Omar", "Hadeer", "Nada"]
 		# Params of the serializer
 		params = []
 		for tag in Tags:
