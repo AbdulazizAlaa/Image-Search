@@ -11,9 +11,11 @@ from django.http import JsonResponse
 from engine.nlp.ner import NER
 from engine.cv.face import opencv_engine
 import numpy as np, cv2, os
+from rest_framework import permissions
 
 # Create your views here.
 class ImageUpload(APIView):
+	permission_classes = (permissions.IsAuthenticated,)
 
 	def post(self, request, format=None):
 		print("in 1")
@@ -33,6 +35,8 @@ class ImageUpload(APIView):
 			return Response(text)
 
 class RenderImage(APIView):
+	permission_classes = (permissions.IsAuthenticated,)
+
 	def get(self, request, format = None):
 
 		text = request.GET.get("q")
@@ -40,7 +44,7 @@ class RenderImage(APIView):
 			text = text.encode("ascii", "ignore")
 
 		Tags = NER.solve(text)
-
+		#Tags = ["Omar", "Hadeer", "Nada"]
 		# Params of the serializer
 		params = []
 		for tag in Tags:

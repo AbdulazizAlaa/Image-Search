@@ -18,17 +18,19 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.generic import TemplateView
+from rest_framework_jwt.views import obtain_jwt_token
 admin.autodiscover()
 
 urlpatterns = [
     # Matches the root route (Our landing page)
     url(r'^$', TemplateView.as_view(template_name='landing/index.html')),
     # Matches our SPA root
-    url(r'^home/', TemplateView.as_view(template_name='spa/index.html')),
+    url(r'^home/', include('spa.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('User.urls')),
     url(r'^image/', include('image.urls')),
    	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api-token-auth/', obtain_jwt_token),
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_URL)
@@ -38,4 +40,4 @@ urlpatterns = [
 # way we can be sure if a user enters a link that is handled
 # by React's router that Django will not block the user's
 # request.
-urlpatterns.append(url(r'^.*', TemplateView.as_view(template_name='spa/index.html')))
+urlpatterns.append(url(r'^.*', include('spa.urls')))
