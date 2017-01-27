@@ -40,4 +40,4 @@ urlpatterns = [
 # way we can be sure if a user enters a link that is handled
 # by React's router that Django will not block the user's
 # request.
-urlpatterns.append(url(r'^.*', include('spa.urls')))
+urlpatterns.append(url(r'^.*', TemplateView.as_view(template_name='spa/index.html')))
