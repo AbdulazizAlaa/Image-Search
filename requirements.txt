@@ -2,4 +2,4 @@ django
 djangorestframework
 mysql-python
 djangorestframework-jwt
-
+pycorenlp
