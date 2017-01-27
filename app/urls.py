@@ -25,7 +25,7 @@ urlpatterns = [
     # Matches the root route (Our landing page)
     url(r'^$', TemplateView.as_view(template_name='landing/index.html')),
     # Matches our SPA root
-    url(r'^home/', include('spa.urls')),
+    url(r'^home/', TemplateView.as_view(template_name='spa/index.html')),
     url(r'^admin/', admin.site.urls),
     url(r'^user/', include('User.urls')),
     url(r'^image/', include('image.urls')),
@@ -40,4 +40,4 @@ urlpatterns = [
 # way we can be sure if a user enters a link that is handled
 # by React's router that Django will not block the user's
 # request.
-urlpatterns.append(url(r'^.*', include('spa.urls')))
+urlpatterns.append(url(r'^.*', TemplateView.as_view(template_name='spa/index.html')))
