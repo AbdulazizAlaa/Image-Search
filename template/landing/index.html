@@ -12,7 +12,7 @@
     <title>Whimsy</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="static/landing/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -20,26 +20,26 @@
     <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
 
     <!-- Plugin CSS -->
-    <link rel="stylesheet" href="static/landing/vendor/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="static/landing/vendor/simple-line-icons/css/simple-line-icons.css">
-    <link rel="stylesheet" href="static/landing/vendor/device-mockups/device-mockups.min.css">
+    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="vendor/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="vendor/device-mockups/device-mockups.min.css">
 
     <!-- Theme CSS -->
-    <link href="static/landing/css/new-age.min.css" rel="stylesheet">
+    <link href="css/new-age.min.css" rel="stylesheet">
     
     
         
     <!-- jQuery -->
-    <script src="static/landing/vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/jquery/jquery.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="static/landing/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
     <!-- Plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
     <!-- Theme JavaScript -->
-    <script src="static/landing/js/new-age.min.js"></script>
+    <script src="js/new-age.min.js"></script>
     
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -47,27 +47,30 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
     <script type="text/javascript">
-                
-                $(document).ready(function () {
-          $('#login-form').submit(function (e) {
-            var username = $('#username').val();
-            var password = $('#password').val();
-        
-            authLogin(username, password);
-            e.preventDefault();
-          });
-        
-          $('#reg-form').submit(function (e) {
-            var username = $('#username-reg').val();
-            var password = $('#password-reg').val();
-            var firstname = $('#firstname').val();
-            var lastname = $('#lastname').val();
-            var email = $('#email').val();
-        
-            authRegister(username, password, firstname, lastname, email);
-            e.preventDefault();
-          });
+        var ip = "http://ec2-54-214-92-209.us-west-2.compute.amazonaws.com";
+        //var ip = "http://192.168.1.69:9000";
+        $(document).ready(function () {
+            $('#login-form').submit(function (e) {
+                var username = $('#username').val();
+                var password = $('#password').val();
+                authLogin(username, password);
+                e.preventDefault();
+            });
+            $("#reg-form").on("ValueChange", function(){
+               console.log("lmaooooo"); 
+            });
+            $('#reg-form').submit(function (e) {
+                var username = $('#username-reg').val();
+                var password = $('#password-reg').val();
+                var firstname = $('#firstname').val();
+                var lastname = $('#lastname').val();
+                var email = $('#email').val();
+            
+                authRegister(username, password, firstname, lastname, email);
+                e.preventDefault();
+            });
         });
         
         authLogin = function (username, password) {
@@ -75,16 +78,24 @@
             type: "POST",
             crossDomain: true,
             dataType: "json",
-            url: "/user/login",
-            data: {
-              username: username,
-              password: password
-            },
-            success: function (response) {
-                console.log(response.status);
-                if(response.status === 2)
+            //beforeSend: {},
+            //contentType: "application/json",
+            url: ip+"/api-token-auth/",
+            data: 
                 {
-                    window.location = "../index.html";
+                    "username": username,
+                    "password": password
+                },
+            success: function (response) {
+                if(response.token)
+                {
+                    var now = new Date();
+                    now.setHours(now.getHours() + 1);
+                    document.cookie = "token="+response.token+";expires="+now.toUTCString()+";path=/";
+                    //document.cookie = ";expires="+now.toUTCString();
+                    //document.cookie = ";path=/";
+                    console.log(document.cookie);
+                    window.location.replace("../index.html");
                 }
                 else if(response.status === -2)
                 {
@@ -92,7 +103,7 @@
                 }
             },
             error: function (response) {
-              console.log(response);
+                console.log(response);
             }
           });
         };
@@ -100,15 +111,19 @@
           $.ajax({
             type: "POST",
             crossDomain: true,
-            url: "/user/signup",
+            url: ip+"/user/signup",
+            contentType: "application/json",
             dataType: "json",
-            data: {
-              username:username,
-              password: password,
-              last_name: lastname,
-              first_name: firstname,
-              email: email
-            },
+            data: JSON.stringify({
+                "user":
+                {
+                  "username":username,
+                  "password": password,
+                  "last_name": lastname,
+                  "first_name": firstname,
+                  "email": email
+                }
+            }),
             useDefaultXhrHeader: false,
             success: function (response) {
               console.log(response);
@@ -180,7 +195,7 @@
                             <div class="device">
                                 <div class="screen">
                                     <!-- Demo image for screen mockup, you can put an image here, some HTML, an animation, video, or anything else! -->
-                                    <img src="static/landing/img/demo-screen-1.jpg" class="img-responsive" alt="">
+                                    <img src="img/demo-screen-1.jpg" class="img-responsive" alt="">
                                 </div>
                                 <div class="button">
                                     <!-- You can hook the "home button" to some JavaScript events or just remove it -->
@@ -226,7 +241,7 @@
                             <div class="device">
                                 <div class="screen">
                                     <!-- Demo image for screen mockup, you can put an image here, some HTML, an animation, video, or anything else! -->
-                                    <img src="static/landing/img/demo-screen-1.jpg" class="img-responsive" alt=""> </div>
+                                    <img src="img/demo-screen-1.jpg" class="img-responsive" alt=""> </div>
                                 <div class="button">
                                     <!-- You can hook the "home button" to some JavaScript events or just remove it -->
                                 </div>
