@@ -26,9 +26,9 @@
 
     <!-- Theme CSS -->
     <link href="/static/landing/css/new-age.min.css" rel="stylesheet">
-    
-    
-        
+
+
+
     <!-- jQuery -->
     <script src="/static/landing/vendor/jquery/jquery.min.js"></script>
 
@@ -40,7 +40,7 @@
 
     <!-- Theme JavaScript -->
     <script src="/static/landing/js/new-age.min.js"></script>
-    
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -55,11 +55,16 @@
             $('#login-form').submit(function (e) {
                 var username = $('#username').val();
                 var password = $('#password').val();
-                authLogin(username, password);
+                if (username.length == 0 || password.length == 0) {
+                  $('#LoginResponseMessage').html("Please fill in all the fields");
+                }
+                else {
+                  authLogin(username, password);
+                }
                 e.preventDefault();
             });
             $("#reg-form").on("ValueChange", function(){
-               console.log("lmaooooo"); 
+               console.log("lmaooooo");
             });
             $('#reg-form').submit(function (e) {
                 var username = $('#username-reg').val();
@@ -67,12 +72,16 @@
                 var firstname = $('#firstname').val();
                 var lastname = $('#lastname').val();
                 var email = $('#email').val();
-            
-                authRegister(username, password, firstname, lastname, email);
+                if (username.length == 0 || password.length == 0 || firstname.length == 0 || lastname.length == 0 || email.length == 0) {
+                  $('#RegisterResponseMessage').html("Please fill in all the fields");
+                }
+                else {
+                  authRegister(username, password, firstname, lastname, email);
+                }
                 e.preventDefault();
             });
         });
-        
+
         authLogin = function (username, password) {
           $.ajax({
             type: "POST",
@@ -80,7 +89,7 @@
             //beforeSend: {},
             //contentType: "application/json",
             url: ip+"/api-token-auth/",
-            data: 
+            data:
                 {
                     "username": username,
                     "password": password
@@ -139,7 +148,7 @@
             }
           });
         };
-        
+
     </script>
 
 </head>
@@ -153,7 +162,7 @@
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand page-scroll" href="#page-top">Image Search</a>
+                <a class="navbar-brand page-scroll" href="#page-top">Whimsy</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -330,7 +339,7 @@
             </ul>
         </div>
     </footer>
-    
+
 <div id="LoginModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
