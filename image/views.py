@@ -8,7 +8,7 @@ from rest_framework import generics
 from image.models import Image, Tag
 from app import settings
 from django.http import JsonResponse
-from engine.nlp.ner import NER
+# from engine.nlp.ner import NER
 from engine.cv.face import opencv_engine
 import numpy as np, cv2, os
 from rest_framework import permissions
@@ -18,16 +18,28 @@ class ImageUpload(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 
 	def post(self, request, format=None):
-		print("in 1")
 		print(request.data)
 		serializer = ImageUploadSerializer(data=request.data)
-		print("in 2")
-		print(request.data)
-		print (serializer.is_valid())
-		print(serializer.errors)
+
 		if serializer.is_valid():
-			print("in 3")
 			serializer.save()
+            print serializer.data
+
+            imgName = serializer.data['image'].split('/')[2]
+            image = Image.objects.filter(image__icontains=imgName)[0]
+
+            tag = Tag.objects.get(tag="aziz")
+            image.Tags.add(tag)
+
+            tag = Tag.objects.get(tag="yomna")
+            image.Tags.add(tag)
+
+            tag = Tag.objects.get(tag="omar")
+            #image.Tags.add(tag)
+
+            tag = Tag.objects.get(tag="ali")
+            image.Tags.add(tag)
+
 			text = {'status': 1, 'image':serializer.data}
 			return Response(text)
 		else:
@@ -43,8 +55,8 @@ class RenderImage(APIView):
 		if(type(text) == unicode):
 			text = text.encode("ascii", "ignore")
 
-		Tags = NER.solve(text)
-		#Tags = ["Omar", "Hadeer", "Nada"]
+		# Tags = NER.solve(text)
+		Tags = ["Omar", "Hadeer", "Nada"]
 		# Params of the serializer
 		params = []
 		for tag in Tags:
