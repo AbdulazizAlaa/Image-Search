@@ -20,25 +20,11 @@ class ImageUpload(APIView):
 	def post(self, request, format=None):
 		print(request.data)
 		serializer = ImageUploadSerializer(data=request.data)
-
+		print (serializer.is_valid())
+		print(serializer.errors)
 		if serializer.is_valid():
 			serializer.save()
-			print serializer.data 
-			imgName = serializer.data['image'].split('/')[2]
-			image = Image.objects.filter(image__icontains=imgName)[0]
-			
-			tag = Tag.objects.get(tag="aziz")
-        		image.Tags.add(tag)
-
-		        tag = Tag.objects.get(tag="yomna")
-            		image.Tags.add(tag)
-
-            		tag = Tag.objects.get(tag="omar")
-            		#image.Tags.add(tag)
-
-            		tag = Tag.objects.get(tag="ali")
-            		image.Tags.add(tag)
-
+			print serializer.data
 			text = {'status': 1, 'image':serializer.data}
 			return Response(text)
 		else:
@@ -85,8 +71,8 @@ class RenderImage(APIView):
 						continue
 
 
-					if not os.path.exists('media/images/tmp'):
-						os.mkdir('media/images/tmp')
+					if not os.path.exists('media/images/tmp/'):
+						os.mkdir('media/images/tmp/')
 					# opencv_engine decleration
 					f = opencv_engine.OpenCVFaceEngine("engine")
 

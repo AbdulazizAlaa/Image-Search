@@ -20,24 +20,36 @@ class ImageUpload(APIView):
 	def post(self, request, format=None):
 		print(request.data)
 		serializer = ImageUploadSerializer(data=request.data)
-
+		print (serializer.is_valid())
+		print(serializer.errors)
 		if serializer.is_valid():
+			#print serializer.data
 			serializer.save()
-			print serializer.data 
-			imgName = serializer.data['image'].split('/')[2]
-			image = Image.objects.filter(image__icontains=imgName)[0]
+			print serializer.data
 			
+			imgName = serializer.data['image'].split('/')[2]
+			image = Image.objects.filter(image__icontains=imgName)
+			print image
+			print image[0]
+			print image[0].get()
+				print imgName
+	                #image = Image.objects.filter(image=imgName)
+                        #print image
+                        #image = Image.objects.get(image=imgName)
+                        #print image
+
+
 			tag = Tag.objects.get(tag="aziz")
-        		image.Tags.add(tag)
-
-		        tag = Tag.objects.get(tag="yomna")
-            		image.Tags.add(tag)
-
-            		tag = Tag.objects.get(tag="omar")
-            		#image.Tags.add(tag)
-
-            		tag = Tag.objects.get(tag="ali")
-            		image.Tags.add(tag)
+			#image.Tags.add(tag)
+			
+			tag = Tag.objects.get(tag="yomna")
+			image.Tags.add(tag)
+			
+			tag = Tag.objects.get(tag="omar")
+			#image.Tags.add(tag)
+			
+			tag = Tag.objects.get(tag="ali")
+			#image.Tags.add(tag)
 
 			text = {'status': 1, 'image':serializer.data}
 			return Response(text)
@@ -85,8 +97,8 @@ class RenderImage(APIView):
 						continue
 
 
-					if not os.path.exists('media/images/tmp'):
-						os.mkdir('media/images/tmp')
+					if not os.path.exists('media/images/tmp/'):
+						os.mkdir('media/images/tmp/')
 					# opencv_engine decleration
 					f = opencv_engine.OpenCVFaceEngine("engine")
 
