@@ -2,21 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import admin
 import os
-from urlparse import urlparse
 import uuid
-from User.models import User
-
-
-# def my_upload_to(instance, filename):
-#     # "instance" is an instance of Image
-#     # return a path here
-#     return 'images/' + str(instance.id)
-# Create your models here.
-
+# from User.models import User
 
 class Tag(models.Model):
 	tag = models.CharField(max_length= 1000, blank=True)
-
 	def __str__(self):
 		return self.tag
 
@@ -35,12 +25,11 @@ class Image(models.Model):
     
 	# Imagefield to track image path
 	image = models.ImageField(upload_to = my_upload_to)
-
 	# Tags will track the many to many relationship with images
 	# related_name is the name of the relationship in the images model (ie it is the inverse relationship)
-	Tags = models.ManyToManyField(Tag, related_name = 'Images')
+	# Tags = models.ManyToManyField(Tag, related_name = 'Images')
 	
-	# uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
+	uploaded_by = models.ForeignKey(User, related_name='uploaded_by', on_delete = models.PROTECT)
 	# user = models.ManyToManyField(User)
 	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
 		# def __str__(self):
@@ -49,5 +38,21 @@ class Image(models.Model):
 	    return os.path.basename(self.image.name)
 	# filename = models.CharField(max_length=1000)
 
+class TagText(models.Model):
+	#the tag is a text
+	tag = models.ManyToManyField(Tag, related_name='tag_text')
+	image = models.ManyToManyField(Image)
+	#who added this tag
+	user = models.ManyToManyField(User)
+	def __str__(self):
+		return '{}'.format(self.tag)
 
+class TagUsername(models.Model):
+	#the tag is person
+	tag = models.ManyToManyField(User, related_name='tag_username')
+	image = models.ManyToManyField(Image)
+	#who added this tag
+	user = models.ManyToManyField(User)
+	def __str__(self):
+		return '{}'.format(self.tag)
 
