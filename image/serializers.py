@@ -1,4 +1,5 @@
 from image.models import Image, Tag
+from user.serializers import UserDataSerializer
 # from django.contrib.auth.models import Image
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -42,3 +43,22 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 	# def get_image_url(self, obj):
 	# 	return obj.image.url
 
+class TagTextSerializer(serializers.ModelSerializer):
+
+	tag = TagSerializer(required=True, many=True)
+	image = ImageUploadSerializer(required=True, many=True)
+	user = UserDataSerializer(many=True)
+
+	class Meta:
+		model = TagText
+		fields = ('tag', 'image', 'user')
+
+class TagUsernameSerializer(serializers.ModelSerializer):
+
+	tag = UserDataSerializer(required=True, many=True)
+	image = ImageUploadSerializer(required=True, many=True)
+	user = UserDataSerializer(many=True)
+
+	class Meta:
+		model = TagUsername
+		fields = ('tag', 'image', 'user')
