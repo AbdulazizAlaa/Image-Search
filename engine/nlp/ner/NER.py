@@ -1,4 +1,4 @@
-from pycorenlp import StanfordCoreNLP
+#from pycorenlp import StanfordCoreNLP
 
 def solve(text, url='http://localhost', port='9000'):
     """This is where the magic happens."""

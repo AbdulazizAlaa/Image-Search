@@ -2,15 +2,15 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from image.serializers import ImageRetrieveSerializer, ImageUploadSerializer, TagSerializer
+from image.serializers import ImageRetrieveSerializer, ImageUploadSerializer, TagSerializer, TagTextSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
-from image.models import Image, Tag
+from image.models import Image, Tag, TagText, TagUsername
 from app import settings
 from django.http import JsonResponse
-from engine.nlp.ner import NER
-from engine.cv.face import opencv_engine
-import numpy as np, cv2, os
+#from engine.nlp.ner import NER
+#from engine.cv.face import opencv_engine
+#import numpy as np, cv2, os
 from rest_framework import permissions
 
 # Create your views here.
@@ -54,8 +54,8 @@ class RenderImage(APIView):
 		if(type(text) == unicode):
 			text = text.encode("ascii", "ignore")
 
-		Tags = NER.solve(text)
-		#Tags = ["Omar", "Hadeer", "Nada"]
+		#Tags = NER.solve(text)
+		Tags = ["Omar", "Hadeer", "Nada"]
 		# Params of the serializer
 		params = []
 		for tag in Tags:
@@ -107,3 +107,9 @@ class RenderImage(APIView):
 		else:
 			text = {'status':-1, 'images':serializer.errors}
 		return JsonResponse(text)
+
+class UploadImage(generics.CreateAPIView):
+	permission_classes = (permissions.IsAuthenticated,)
+
+	queryset = TagText.objects.all()
+	serializer_class = TagTextSerializer
