@@ -108,8 +108,22 @@ class RenderImage(APIView):
 			text = {'status':-1, 'images':serializer.errors}
 		return JsonResponse(text)
 
-class UploadImage(generics.CreateAPIView):
-	permission_classes = (permissions.IsAuthenticated,)
-
-	queryset = TagText.objects.all()
-	serializer_class = TagTextSerializer
+class UploadImage(generics.ListCreateAPIView):
+	# permission_classes = (permissions.IsAuthenticated,)
+	def post(self, request):
+		# print request.data.get("text_tag")
+		text_tag = []
+		text_tag = request.data.get("text_tag")
+		username_tag = []
+		username_tag = request.data.get("username_tag")
+		uploaded_by = request.data.get("uploaded_by")
+		image = request.data.get("image")
+		# print text_tag
+		# print username_tag
+		# print uploaded_by
+		# print image
+		jsonText = {'tag':"hi", 'image':None}
+		print jsonText
+		serializer1 = TagTextSerializer(data = {})
+		print serializer1.initial_data
+		print serializer1.is_valid()

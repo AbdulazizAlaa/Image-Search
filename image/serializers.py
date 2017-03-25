@@ -46,13 +46,13 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 class TagTextSerializer(serializers.ModelSerializer):
 
-	tag = TagSerializer(required=True, many=True)
-	image = ImageUploadSerializer(required=True, many=True)
-	user = UserDataSerializer(required=True, many=True)
+	tag = TagSerializer(required=False, many=True)
+	image = ImageUploadSerializer(required=False, many=True)
+	# user = UserDataSerializer(required=True, many=True)
 
 	class Meta:
 		model = TagText
-		fields = ('__all__')
+		fields = ('tag', 'image',)
 
 class TagUsernameSerializer(serializers.ModelSerializer):
 
