@@ -1,6 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from face_module_interface import *
+from face.face_module_interface import *
 from GlobalEntities import *
 sys.path.append(AlignDlibrary)
 from align_dlib import AlignDlib
