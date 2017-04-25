@@ -12,7 +12,7 @@ from django.http import JsonResponse
 #from engine.cv.face import opencv_engine
 #import numpy as np, cv2, os
 from rest_framework import permissions
-
+from engine.cv.face import MTCNN_engine
 # Create your views here.
 class ImageUpload(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
@@ -143,7 +143,7 @@ class UploadImage(APIView):
 		# serializer_username_tag = TagUsernameSerializer(data = jsonText_TagUsername)
 		# print serializer_username_tag.is_valid()
 		# print serializer_username_tag.errors
-
+		# print MTCNN_engine.
 		if(serializer_tag.is_valid()):
 			serializer_tag.save()
 			print "tags saved in table Tags"
