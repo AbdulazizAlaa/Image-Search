@@ -43,7 +43,7 @@ class TagText(models.Model):
 	tag = models.ManyToManyField(Tag, related_name='tag_text')
 	image = models.ManyToManyField(Image)
 	#who added this tag
-	user = models.ManyToManyField(User)
+	user = models.ForeignKey(User)
 	def __str__(self):
 		return '{}'.format(self.tag)
 
@@ -52,7 +52,7 @@ class TagUsername(models.Model):
 	tag = models.ManyToManyField(User, related_name='tag_username')
 	image = models.ManyToManyField(Image)
 	#who added this tag
-	user = models.ManyToManyField(User)
+	user = models.ForeignKey(User)
 	def __str__(self):
 		return '{}'.format(self.tag)
 

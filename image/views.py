@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from image.serializers import ImageRetrieveSerializer, ImageUploadSerializer, TagSerializer, TagTextSerializer
+from image.serializers import ImageRetrieveSerializer, ImageUploadSerializer, TagSerializer, TagTextSerializer, TagUsernameSerializer
 from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag, TagText, TagUsername
@@ -108,22 +108,50 @@ class RenderImage(APIView):
 			text = {'status':-1, 'images':serializer.errors}
 		return JsonResponse(text)
 
-class UploadImage(generics.ListCreateAPIView):
+# Get Image and apply face detection algorithm on it
+# then send the image back w/ coordinates, width, height
+# class FaceDetection(APIView):
+# 	def post(self, request):
+# 		myimage = request.data
+
+		
+
+class UploadImage(APIView):
 	# permission_classes = (permissions.IsAuthenticated,)
 	def post(self, request):
-		# print request.data.get("text_tag")
-		text_tag = []
-		text_tag = request.data.get("text_tag")
-		username_tag = []
-		username_tag = request.data.get("username_tag")
-		uploaded_by = request.data.get("uploaded_by")
+		print (request.data)
+		# text_tag = []
+		text_tag = request.data.get("tag_text")
+		print text_tag
+		# username_tag = []
+		username_tag = request.data.get("tag_username")
+		user = request.data.get("user")
 		image = request.data.get("image")
 		# print text_tag
 		# print username_tag
 		# print uploaded_by
 		# print image
-		jsonText = {'tag':"hi", 'image':None}
-		print jsonText
-		serializer1 = TagTextSerializer(data = {})
-		print serializer1.initial_data
-		print serializer1.is_valid()
+		jsonText_TagText = {'image':image, 'tag':text_tag, 'user':user}
+		jsonText_TagUsername = {'image':image, "tag":username_tag,'user':user}
+		print "hiii"
+		tagArray = []
+		for tag in text_tag:
+			tagArray.append(tag)
+		print tagArray
+		serializer_tag = TagSerializer(data = tagArray, many = True)
+		serializer_text_tag = TagTextSerializer(data = jsonText_TagText)
+		# serializer_username_tag = TagUsernameSerializer(data = jsonText_TagUsername)
+		# print serializer_username_tag.is_valid()
+		# print serializer_username_tag.errors
+
+		if(serializer_tag.is_valid()):
+			serializer_tag.save()
+			print "tags saved in table Tags"
+
+		if(serializer_text_tag.is_valid()):
+			print "text tags are saved in text tags"
+		print serializer_text_tag.errors
+		# if(serializer_username_tag.is_valid()):
+		# 	print "username tags are saved in text tags"
+			# print serializser_text_tag.errors
+			# print serializer_text_tag.data
