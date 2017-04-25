@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 
 class TagSerializer(serializers.ModelSerializer):
-	
+
 	tag = serializers.CharField()
 
 	class Meta:
@@ -22,7 +22,7 @@ class ImageRetrieveSerializer(serializers.ModelSerializer):#test
 	Tags = TagSerializer(required=True, many=True)
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
-	
+
 	class Meta:
 		model = Image
 		# The input to the ImageRetrieveSerializer
@@ -31,7 +31,7 @@ class ImageRetrieveSerializer(serializers.ModelSerializer):#test
 
 
 class ImageUploadSerializer(serializers.ModelSerializer):#test
-	
+
 	# tag = TagSerializer(many = True, read_only=True)#ques
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	image = serializers.ImageField(max_length=None, use_url=True)
@@ -47,9 +47,18 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 class TagTextSerializer(serializers.ModelSerializer):
 
+
+	#tag = TagSerializer(required=False, many=True)
+	#image = ImageUploadSerializer(required=False, many=True)
+		#Trying ForeignKey field
+
+	# user = UserDataSerializer(required=True, many=True)
+
+
 	tag = TagSerializer( many = True, required=True)
 	# image = ImageUploadSerializer( many=True, required=True)
 	user = serializers.PrimaryKeyRelatedField( many=True, read_only=True)
+
 
 	class Meta:
 		model = TagText
@@ -57,7 +66,11 @@ class TagTextSerializer(serializers.ModelSerializer):
 
 class TagUsernameSerializer(serializers.ModelSerializer):
 
-	tag = serializers.SlugRelatedField(queryset = User.objects.all(), slug_field = "username")
+	# tag = UserDataSerializer(required=True, many=True)
+	# image = ImageUploadSerializer(required=True, many=True)
+	# user = UserDataSerializer(required=True, many=True)
+		#Trying ForeignKey field
+
 	# image = ImageUploadSerializer(required=True, many=True)
 	user = serializers.PrimaryKeyRelatedField( many=True, read_only=True)
 

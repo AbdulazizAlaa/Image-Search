@@ -14,36 +14,36 @@ from django.http import JsonResponse
 from rest_framework import permissions
 from engine.cv.face import MTCNN_engine
 # Create your views here.
-class ImageUpload(APIView):
-	permission_classes = (permissions.IsAuthenticated,)
-
-	def post(self, request, format=None):
-		print(request.data)
-		serializer = ImageUploadSerializer(data=request.data)
-
-		if serializer.is_valid():
-			serializer.save()
-			print serializer.data 
-			imgName = serializer.data['image'].split('/')[2]
-			image = Image.objects.filter(image__icontains=imgName)[0]
-			
-			tag = Tag.objects.get(tag="aziz")
-        		image.Tags.add(tag)
-
-		        tag = Tag.objects.get(tag="yomna")
-            		image.Tags.add(tag)
-
-            		tag = Tag.objects.get(tag="omar")
-            		#image.Tags.add(tag)
-
-            		tag = Tag.objects.get(tag="ali")
-            		image.Tags.add(tag)
-
-			text = {'status': 1, 'image':serializer.data}
-			return Response(text)
-		else:
-			text = {'status':-1, 'image':serializer.errors}
-			return Response(text)
+# class ImageUpload(APIView):
+# 	permission_classes = (permissions.IsAuthenticated,)
+#
+# 	def post(self, request, format=None):
+# 		print(request.data)
+# 		serializer = ImageUploadSerializer(data=request.data)
+#
+# 		if serializer.is_valid():
+# 			serializer.save()
+# 			print serializer.data
+# 			imgName = serializer.data['image'].split('/')[2]
+# 			image = Image.objects.filter(image__icontains=imgName)[0]
+#
+# 			tag = Tag.objects.get(tag="aziz")
+#         		image.Tags.add(tag)
+#
+# 		        tag = Tag.objects.get(tag="yomna")
+#             		image.Tags.add(tag)
+#
+#             		tag = Tag.objects.get(tag="omar")
+#             		#image.Tags.add(tag)
+#
+#             		tag = Tag.objects.get(tag="ali")
+#             		image.Tags.add(tag)
+#
+# 			text = {'status': 1, 'image':serializer.data}
+# 			return Response(text)
+# 		else:
+# 			text = {'status':-1, 'image':serializer.errors}
+# 			return Response(text)
 
 class RenderImage(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
@@ -108,13 +108,14 @@ class RenderImage(APIView):
 			text = {'status':-1, 'images':serializer.errors}
 		return JsonResponse(text)
 
+
 # Get Image and apply face detection algorithm on it
 # then send the image back w/ coordinates, width, height
 # class FaceDetection(APIView):
 # 	def post(self, request):
 # 		myimage = request.data
 
-		
+
 
 class UploadImage(APIView):
 	# permission_classes = (permissions.IsAuthenticated,)
@@ -131,6 +132,7 @@ class UploadImage(APIView):
 		# print username_tag
 		# print uploaded_by
 		# print image
+
 		jsonText_TagText = {'image':image, 'tag':text_tag, 'user':user}
 		jsonText_TagUsername = {'image':image, "tag":username_tag,'user':user}
 		print "hiii"
