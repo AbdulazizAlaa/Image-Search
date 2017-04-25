@@ -19,7 +19,10 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.views.generic import TemplateView
 from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_swagger.views import get_swagger_view
 admin.autodiscover()
+
+schema_view = get_swagger_view(title='Image Search API')
 
 urlpatterns = [
     # Matches the root route (Our landing page)
@@ -31,6 +34,9 @@ urlpatterns = [
     url(r'^image/', include('image.urls')),
    	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-token-auth/', obtain_jwt_token),
+    # For API documentation(DRF)
+    url(r'^docs/', include('rest_framework_docs.urls')),
+    # url(r'^api/', include('api.urls', namespace="documentation")),
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_URL)

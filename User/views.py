@@ -11,6 +11,18 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.renderers import TemplateHTMLRenderer
 
 class Signup(APIView):
+	"""
+    Create new user and add it to User table
+
+    Request:
+    first_name(optional)
+    last_name(optional)
+    username
+    email
+    password
+
+    parameters=["username"]
+    """
 	def post(self, request, format = None):
 		user = request.data.get('user')
 		serializer = UserDataSerializer(data = user)

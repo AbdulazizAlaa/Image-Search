@@ -3,6 +3,7 @@ from User.serializers import UserDataSerializer
 # from django.contrib.auth.models import Image
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.contrib.auth.models import User
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -18,9 +19,7 @@ class ImageRetrieveSerializer(serializers.ModelSerializer):#test
 	# image = serializers.CharField()
 	#id = serializers.IntegerField()
 	# Parameter many was used to serialize a list instead of 1 string
-	#Tags = TagSerializer(required=True, many=True)
-		#Trying ForeignKey field
-	Tags = models.ForeignKey(TagSerializer)
+	Tags = TagSerializer(required=True, many=True)
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
 
@@ -35,7 +34,7 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 	# tag = TagSerializer(many = True, read_only=True)#ques
 	# image_url = serializers.SerializerMethodField('get_image_url')
-	# image = serializers.ImageField(max_length=None, use_url=True)
+	image = serializers.ImageField(max_length=None, use_url=True)
 	uploaded_by = serializers.PrimaryKeyRelatedField(read_only=True)
 
 	class Meta:
@@ -48,16 +47,22 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 class TagTextSerializer(serializers.ModelSerializer):
 
+
 	#tag = TagSerializer(required=False, many=True)
 	#image = ImageUploadSerializer(required=False, many=True)
 		#Trying ForeignKey field
-	TagText = models.ForeignKey(TagSerializer)
-	image = models.ForeignKey(ImageUploadSerializer)
+
 	# user = UserDataSerializer(required=True, many=True)
+
+
+	tag = TagSerializer( many = True, required=True)
+	# image = ImageUploadSerializer( many=True, required=True)
+	user = serializers.PrimaryKeyRelatedField( many=True, read_only=True)
+
 
 	class Meta:
 		model = TagText
-		fields = ('tag', 'image',)
+		fields = ('__all__')
 
 class TagUsernameSerializer(serializers.ModelSerializer):
 
@@ -65,10 +70,9 @@ class TagUsernameSerializer(serializers.ModelSerializer):
 	# image = ImageUploadSerializer(required=True, many=True)
 	# user = UserDataSerializer(required=True, many=True)
 		#Trying ForeignKey field
-	Tag = models.ForeignKey(UserDataSerializer)
-	image = models.ForeignKey(ImageUploadSerializer)
-	user = models.ForeignKey(UserDataSerializer)
 
+	# image = ImageUploadSerializer(required=True, many=True)
+	user = serializers.PrimaryKeyRelatedField( many=True, read_only=True)
 
 	class Meta:
 		model = TagUsername
