@@ -6,7 +6,7 @@ from rest_framework.validators import UniqueValidator
 
 
 class TagSerializer(serializers.ModelSerializer):
-	
+
 	tag = serializers.CharField()
 
 	class Meta:
@@ -18,10 +18,12 @@ class ImageRetrieveSerializer(serializers.ModelSerializer):#test
 	# image = serializers.CharField()
 	#id = serializers.IntegerField()
 	# Parameter many was used to serialize a list instead of 1 string
-	Tags = TagSerializer(required=True, many=True)
+	#Tags = TagSerializer(required=True, many=True)
+		#Trying ForeignKey field
+	Tags = models.ForeignKey(TagSerializer)
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
-	
+
 	class Meta:
 		model = Image
 		# The input to the ImageRetrieveSerializer
@@ -30,7 +32,7 @@ class ImageRetrieveSerializer(serializers.ModelSerializer):#test
 
 
 class ImageUploadSerializer(serializers.ModelSerializer):#test
-	
+
 	# tag = TagSerializer(many = True, read_only=True)#ques
 	# image_url = serializers.SerializerMethodField('get_image_url')
 	# image = serializers.ImageField(max_length=None, use_url=True)
@@ -46,8 +48,11 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 class TagTextSerializer(serializers.ModelSerializer):
 
-	tag = TagSerializer(required=False, many=True)
-	image = ImageUploadSerializer(required=False, many=True)
+	#tag = TagSerializer(required=False, many=True)
+	#image = ImageUploadSerializer(required=False, many=True)
+		#Trying ForeignKey field
+	TagText = models.ForeignKey(TagSerializer)
+	image = models.ForeignKey(ImageUploadSerializer)
 	# user = UserDataSerializer(required=True, many=True)
 
 	class Meta:
@@ -56,9 +61,14 @@ class TagTextSerializer(serializers.ModelSerializer):
 
 class TagUsernameSerializer(serializers.ModelSerializer):
 
-	tag = UserDataSerializer(required=True, many=True)
-	image = ImageUploadSerializer(required=True, many=True)
-	user = UserDataSerializer(required=True, many=True)
+	# tag = UserDataSerializer(required=True, many=True)
+	# image = ImageUploadSerializer(required=True, many=True)
+	# user = UserDataSerializer(required=True, many=True)
+		#Trying ForeignKey field
+	Tag = models.ForeignKey(UserDataSerializer)
+	image = models.ForeignKey(ImageUploadSerializer)
+	user = models.ForeignKey(UserDataSerializer)
+
 
 	class Meta:
 		model = TagUsername
