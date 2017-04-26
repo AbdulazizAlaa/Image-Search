@@ -12,7 +12,7 @@ from django.http import JsonResponse
 #from engine.cv.face import opencv_engine
 #import numpy as np, cv2, os
 from rest_framework import permissions
-from engine.cv.face import MTCNN_engine
+# from engine.cv.face import MTCNN_engine
 # Create your views here.
 # class ImageUpload(APIView):
 # 	permission_classes = (permissions.IsAuthenticated,)
