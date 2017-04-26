@@ -42,8 +42,6 @@ class TagText(models.Model):
 #the tag is a text
 	tag = models.ManyToManyField(Tag, related_name='tag_text')
 	image = models.ForeignKey(Image)
-	#who added this tag
-
 
 	#Detection Rectangle specs(width,height, coordinate x & coordinate y)
 	width = models.DecimalField(max_digits=2, decimal_places=2)
@@ -51,7 +49,7 @@ class TagText(models.Model):
 	xCoordinate = models.DecimalField(max_digits=2,decimal_places=2)
 	yCoordinate = models.DecimalField(max_digits=2,decimal_places=2)
 
-
+	#who added this tag
 	user = models.ForeignKey(User)
 	def __str__(self):
 		return '{}'.format(self.tag)
@@ -59,7 +57,14 @@ class TagText(models.Model):
 class TagUsername(models.Model):
 #the tag is person
 	tag = models.ManyToManyField(User, related_name='tag_username')
-	image = models.ManyToManyField(Image)
+	image = models.ForeignKey(Image)
+
+	#Detection Rectangle specs(width,height, coordinate x & coordinate y)
+	width = models.DecimalField(max_digits=2, decimal_places=2)
+	length = models.DecimalField(max_digits=2,decimal_places=2)
+	xCoordinate = models.DecimalField(max_digits=2,decimal_places=2)
+	yCoordinate = models.DecimalField(max_digits=2,decimal_places=2)
+
 	#who added this tag
 	user = models.ForeignKey(User)
 	def __str__(self):
