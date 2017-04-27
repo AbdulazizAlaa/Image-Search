@@ -44,14 +44,14 @@ class VisionEngine():
 
     def processImage(self, img):
 
+        img, f, faces_rects = self.__faceDetectionEngine.detect_faces(img)
 
-        data = {'faces': [
-                            {'name': 'aziz', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                            {'name': 'omar', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                            {'name': 'none', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                        ],'objects': [
-                            {'name': 'car', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                            {'name': 'motorcycle', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                        ]
-                }
+        faces = []
+        faces.append(faces_rects)
+
+        objects = [
+                        {'name': 'car', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
+                        {'name': 'motorcycle', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
+                    ]
+        data = {'faces': faces,'objects': objects}
         return data
