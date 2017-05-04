@@ -1,5 +1,5 @@
 from image.models import Image, Tag, TagText, TagUsername
-from User.serializers import UserLoginSerializer
+from User.serializers import UserTagSerializer, UserLoginSerializer
 # from django.contrib.auth.models import Image
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -47,17 +47,17 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 class TagTextSerializer(serializers.ModelSerializer):
 	tag = TagSerializer( required=True, many = True)
-	user = serializers.PrimaryKeyRelatedField( many=True, read_only=True)
-	image = serializers.SlugRelatedField(queryset = Tag.objects.all(), slug_field = "tag")
+	user = serializers.SlugRelatedField(queryset = User.objects.all(),  slug_field = "username")
+	# image = serializers.SlugRelatedField(queryset = Image.objects.all(), slug_field = "image")
 
 	class Meta:
 		model = TagText
-		fields = ('__all__')
+		fields = ('tag', 'user',)
 
 class TagUsernameSerializer(serializers.ModelSerializer):
-	tag = UserLoginSerializer(required=True, many = True)
-	user = serializers.PrimaryKeyRelatedField( many=True, read_only=True)
-	image = serializers.SlugRelatedField(queryset = Tag.objects.all(), slug_field = "tag")
+	tag = UserTagSerializer(required=True, many = True)
+	user = serializers.SlugRelatedField(queryset = User.objects.all(),  slug_field = "username")
+	# image = serializers.SlugRelatedField(queryset = Image.objects.all(), slug_field = "image")
 	class Meta:
 		model = TagUsername
-		fields = ('__all__')
+		fields = ('tag', 'user',)

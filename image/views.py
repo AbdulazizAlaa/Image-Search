@@ -8,6 +8,7 @@ from rest_framework import generics
 from image.models import Image, Tag, TagText, TagUsername
 from app import settings
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 #from engine.nlp.ner import NER
 #from engine.cv.face import opencv_engine
 #import numpy as np, cv2, os
@@ -118,7 +119,7 @@ class RenderImage(APIView):
 
 
 class UploadImage(APIView):
-	# permission_classes = (permissions.IsAuthenticated,)
+	permission_classes = (permissions.IsAuthenticated,)
 	def post(self, request):
 		print (request.data)
 		# text_tag = []
@@ -142,7 +143,7 @@ class UploadImage(APIView):
 		print tagArray
 		serializer_tag = TagSerializer(data = tagArray, many = True)
 		serializer_text_tag = TagTextSerializer(data = jsonText_TagText)
-		# serializer_username_tag = TagUsernameSerializer(data = jsonText_TagUsername)
+		serializer_username_tag = TagUsernameSerializer(data = jsonText_TagUsername)
 		# print serializer_username_tag.is_valid()
 		# print serializer_username_tag.errors
 		# print MTCNN_engine.
@@ -153,7 +154,17 @@ class UploadImage(APIView):
 		if(serializer_text_tag.is_valid()):
 			print "text tags are saved in text tags"
 		print serializer_text_tag.errors
-		# if(serializer_username_tag.is_valid()):
-		# 	print "username tags are saved in text tags"
-			# print serializser_text_tag.errors
+		if(serializer_username_tag.is_valid()):
+			print "username tags are saved in text tags"
+		print serializer_username_tag.errors
 			# print serializer_text_tag.data
+class getUsername(APIView):
+	def get(self, request):
+		q = request.GET.get("q")
+		# icontains acts as LIKE in sql, icontains is case insensitive
+		search = User.objects.filter(username__icontains = q).values_list('username')
+		print search
+		text = {'results': list(search)}
+		print text
+		return Response(text)
+

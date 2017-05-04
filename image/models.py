@@ -36,7 +36,7 @@ class Image(models.Model):
 		# 	return self.user.username
 	def __unicode__(self):
 	    return os.path.basename(self.image.name)
-	filename = models.CharField(max_length=1000)
+	# filename = models.CharField(max_length=1000)
 
 class TagText(models.Model):
 #the tag is a text
