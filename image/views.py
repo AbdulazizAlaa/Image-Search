@@ -122,12 +122,13 @@ class UploadImage(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 	def post(self, request):
 		print (request.data)
+		user = request.user.username
+		print user
 		# text_tag = []
 		text_tag = request.data.get("tag_text")
 		print text_tag
 		# username_tag = []
 		username_tag = request.data.get("tag_username")
-		user = request.data.get("user")
 		image = request.data.get("image")
 		# print text_tag
 		# print username_tag
