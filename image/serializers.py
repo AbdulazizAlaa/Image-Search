@@ -46,7 +46,7 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 	# 	return obj.image.url
 
 class TagTextSerializer(serializers.ModelSerializer):
-	tag = TagSerializer( required=True, many = True)
+	tag = TagSerializer(read_only=True, many = True)
 	user = serializers.SlugRelatedField(queryset = User.objects.all(),  slug_field = "username")
 	# image = serializers.SlugRelatedField(queryset = Image.objects.all(), slug_field = "image")
 
@@ -55,7 +55,7 @@ class TagTextSerializer(serializers.ModelSerializer):
 		fields = ('tag', 'user',)
 
 class TagUsernameSerializer(serializers.ModelSerializer):
-	tag = UserTagSerializer(required=True, many = True)
+	tag = UserTagSerializer(read_only=True, many = True)
 	user = serializers.SlugRelatedField(queryset = User.objects.all(),  slug_field = "username")
 	# image = serializers.SlugRelatedField(queryset = Image.objects.all(), slug_field = "image")
 	class Meta:

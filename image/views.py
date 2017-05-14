@@ -13,6 +13,8 @@ from django.contrib.auth.models import User
 #from engine.cv.face import opencv_engine
 #import numpy as np, cv2, os
 from rest_framework import permissions
+from langdetect import detect
+
 # from engine.cv.face import MTCNN_engine
 # Create your views here.
 # class ImageUpload(APIView):
@@ -49,18 +51,28 @@ from rest_framework import permissions
 class RenderImage(APIView):
 	permission_classes = (permissions.IsAuthenticated,)
 
-	def get(self, request, format = None):
+	def get(self, request, format=None):
 
 		text = request.GET.get("q")
 		if(type(text) == unicode):
 			text = text.encode("ascii", "ignore")
 
-		#Tags = NER.solve(text)
-		Tags = ["Omar", "Hadeer", "Nada"]
+		language = ""
+		try:
+			language = detect(text)
+		except UnicodeDecodeError:
+			language = "ar"
+
 		# Params of the serializer
 		params = []
-		for tag in Tags:
-			params.append({'tag': tag})
+		if(language != "ar"):
+			#Tags = NER.solve(text)
+			Tags = ["Omar", "Hadeer", "Nada"]
+
+			for tag in Tags:
+				params.append({'tag': tag})
+		else:
+			#call Arabic model...
 
 		# Serialize input data
 		serializer = ImageRetrieveSerializer(data={'Tags': params})
@@ -119,9 +131,11 @@ class RenderImage(APIView):
 
 
 class UploadImage(APIView):
-	permission_classes = (permissions.IsAuthenticated,)
+	# permission_classes = (permissions.IsAuthenticated,)
 	def post(self, request):
 		print (request.data)
+		# Get username by adding the token in header:
+		# Authorization: JWT token
 		user = request.user.username
 		print user
 		# text_tag = []
@@ -130,10 +144,6 @@ class UploadImage(APIView):
 		# username_tag = []
 		username_tag = request.data.get("tag_username")
 		image = request.data.get("image")
-		# print text_tag
-		# print username_tag
-		# print uploaded_by
-		# print image
 
 		jsonText_TagText = {'image':image, 'tag':text_tag, 'user':user}
 		jsonText_TagUsername = {'image':image, "tag":username_tag,'user':user}
@@ -151,14 +161,16 @@ class UploadImage(APIView):
 		if(serializer_tag.is_valid()):
 			serializer_tag.save()
 			print "tags saved in table Tags"
-
 		if(serializer_text_tag.is_valid()):
+			serializer_text_tag.save()
 			print "text tags are saved in text tags"
 		print serializer_text_tag.errors
 		if(serializer_username_tag.is_valid()):
+			print serializer_username_tag.save()
 			print "username tags are saved in text tags"
 		print serializer_username_tag.errors
 			# print serializer_text_tag.data
+		return Response()
 class getUsername(APIView):
 	def get(self, request):
 		q = request.GET.get("q")
