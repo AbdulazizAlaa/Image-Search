@@ -10,6 +10,7 @@ from app import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 # from engine.nlp.ner import NER
+# from engine.nlp.aner import ANER
 # from engine.cv.face import opencv_engine
 # import numpy as np, cv2, os
 from rest_framework import permissions
@@ -74,7 +75,8 @@ class RenderImage(APIView):
                 params.append({'tag': tag})
         else:
             # call Arabic model...
-
+            arabic_model = ANER.ANER()
+            Tags = arabic_model.solve(text)
             # Serialize input data
             serializer = ImageRetrieveSerializer(data={'Tags': params})
 

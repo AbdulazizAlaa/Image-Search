@@ -1,6 +1,10 @@
+pandas
+numpy
 django
 djangorestframework
 mysql-python
 djangorestframework-jwt
 pycorenlp
 pillow
+keras
+fasttext

@@ -8,3 +8,5 @@ engine/cv/GlobalEntities.py
 *.rar
 *.sql*
 media
+*.hdf
+*.bin
