@@ -133,8 +133,8 @@ class FacenetEngine(FaceRecognitionInterface):
                 for face in imgs:
                     face = cv2.resize(face, (self.__image_size, self.__image_size))
                     images[i, :, :, :] = face[:, :, :]
-                    cv2.imshow("face", images[i])
-                    cv2.waitKey(0)
+                    # cv2.imshow("face", images[i])
+                    # cv2.waitKey(0)
                     i = i+1
                 feed_dict = { images_placeholder:images, phase_train_placeholder:False }
                 emb_array = sess.run(embeddings, feed_dict=feed_dict)
@@ -152,9 +152,11 @@ class FacenetEngine(FaceRecognitionInterface):
                 best_class_indices = np.argmax(predictions, axis=1)
                 best_class_probabilities = predictions[np.arange(len(best_class_indices)), best_class_indices]
 
-                print(class_names)
+                # getting the predictions
+                face_predictions = []
                 for i in range(len(best_class_indices)):
-                    print('%4d  %s: %.3f' % (i, class_names[best_class_indices[i]], best_class_probabilities[i]))
+                    face_predictions.append(class_names[best_class_indices[i]])
+                    # print('%4d %s: %.3f' %
+                    # (i, class_names[best_class_indices[i]], best_class_probabilities[i]))
 
-                # accuracy = np.mean(np.equal(best_class_indices, labels))
-                # print('Accuracy: %.3f' % accuracy)
+                return face_predictions

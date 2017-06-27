@@ -63,9 +63,6 @@ class VisionEngine():
 
         img, face_images, faces_rects = self.__faceDetectionEngine.detect_faces(img)
 
-        faces = []
-        faces.append(faces_rects)
-
         # img_name = "IMG_0979"
         # person_name = 'aziz'
         # if not os.path.exists(self.__face_data_dir+'/'+person_name):
@@ -79,10 +76,17 @@ class VisionEngine():
         #     cv2.imshow("face", face)
         #     cv2.waitKey(0)
 
-        self.__faceRecognitionEngine.train()
+        # self.__faceRecognitionEngine.train()
 
         # for face in face_images:
-        self.__faceRecognitionEngine.predict_proba(face_images)
+        face_predictions = self.__faceRecognitionEngine.predict_proba(face_images)
+
+        # adding the predicted class names to face rectangles
+        faces = []
+        for i in range(len(face_predictions)):
+            temp_rect = faces_rects[i]
+            temp_rect['name'] = face_predictions[i]
+            faces.append(temp_rect)
 
         objects = [
                         {'name': 'car', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
