@@ -133,8 +133,6 @@ class FacenetEngine(FaceRecognitionInterface):
                 for face in imgs:
                     face = cv2.resize(face, (self.__image_size, self.__image_size))
                     images[i, :, :, :] = face[:, :, :]
-                    # cv2.imshow("face", images[i])
-                    # cv2.waitKey(0)
                     i = i+1
                 feed_dict = { images_placeholder:images, phase_train_placeholder:False }
                 emb_array = sess.run(embeddings, feed_dict=feed_dict)
