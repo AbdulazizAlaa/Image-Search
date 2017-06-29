@@ -2,7 +2,6 @@ import sys
 sys.path.insert(0, "..")
 
 from engine.cv.vision import vision_engine
-from engine.cv.face.recognition.facenet_engine import FacenetEngine
 
 import numpy as np
 import cv2
@@ -18,8 +17,10 @@ img = cv2.imread('/home/abdulaziz/workspace/Machine Learning/graduation_project/
 # print "number of faces in this image is: "+str(f.number_of_faces(img))
 # f.crop_faces(img)
 
-# example use method store faces
-FacenetEngine.store_training_data(img, [{'name': 'yomna', 'x': 424, 'h': 393, 'y': 188, 'w': 313}], "aziz.jpg")
+# creating engine instance
+engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine', 'face_recognition': 'facenet', 'object_detection_recognition': 'yolo'})
 
-# f = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine', 'face_recognition': 'facenet', 'object_detection_recognition': 'yolo'})
-# print(f.processImage(img))
+# example use method store faces
+engine.store_face_training_data(img, [{'name': 'yomna', 'x': 424, 'h': 393, 'y': 188, 'w': 313}], "aziz.jpg")
+
+# print(engine.processImage(img))
