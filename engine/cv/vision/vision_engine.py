@@ -6,6 +6,7 @@ from GlobalEntities import *
 from face.detection.MTCNN_engine import *
 from face.detection.opencv_engine import *
 from face.recognition.facenet_engine import *
+from object.inception_engine import *
 
 import numpy as np
 import cv2
@@ -49,6 +50,10 @@ class VisionEngine():
         #object detection and recognition engine
         if(config['object_detection_recognition'] == 'yolo'):
             self.__objectEngine = None
+        if(config['object_detection_recognition'] == 'inception'):
+            self.__objectEngine = InceptionEngine(
+                            model_dir='engine/cv/resources/inception',
+                            num_top_predictions=10)
 
 
         print("Engine Created:")
@@ -118,12 +123,10 @@ class VisionEngine():
         # face_count = 0
         # for face in face_images:
         #     face = cv2.resize(face, (160, 160))
-        #     cv2.imwrite(self.__face_data_dir+'/'+person_name+'/'+img_name+'_face_'+str(face_count)+'.jpg', face)
-        #     face_count = face_count+1
+        #     # cv2.imwrite(self.__face_data_dir+'/'+person_name+'/'+img_name+'_face_'+str(face_count)+'.jpg', face)
+        #     # face_count = face_count+1
         #     cv2.imshow("face", face)
         #     cv2.waitKey(0)
-
-        # self.__faceRecognitionEngine.train()
 
         # for face in face_images:
         face_predictions = self.__faceRecognitionEngine.predict_proba(face_images)
@@ -135,9 +138,8 @@ class VisionEngine():
             temp_rect['name'] = face_predictions[i]
             faces.append(temp_rect)
 
-        objects = [
-                        {'name': 'car', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                        {'name': 'motorcycle', 'x': 1, 'y': 1, 'w': 20, 'h': 30},
-                    ]
+        # getting object classes from image
+        objects = self.__objectEngine.predict_proba(img)
+
         data = {'faces': faces,'objects': objects}
         return data
