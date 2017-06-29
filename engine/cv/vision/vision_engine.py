@@ -59,6 +59,53 @@ class VisionEngine():
         print("Object Engine: ")
         print(self.__objectEngine)
 
+    def store_face_training_data(self, img, rects, img_name):
+        '''store_training_data
+        takes params
+        img: image numpy array processed image
+        rects: array of objects every object represent a rectangle with x, y, w, h and name of an object
+        image_name: String image name to store the face images
+        '''
+        #checking if the name is none or empty
+        if(img_name == None or img_name == ""):
+            return
+
+        # spliting img name and getting the name without the extention
+        name_parts = img_name.split('.')
+        if(len(name_parts) > 0):
+            img_name = name_parts[0]
+
+        # face data directory
+        data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))+'/'+face_data_dir
+
+        print ("Saving image faces to folder: ")
+        print (data_dir)
+
+        for i in range(len(rects)):
+            # the processed rectangle
+            rect = rects[i]
+
+            # face image name
+            face_name = img_name+'_'+str(i)+'.jpg'
+            # folder name
+            folder_name = data_dir+'/'+rect['name']
+            if not os.path.exists(folder_name):
+                os.makedirs(folder_name)
+
+            # cropping the face image
+            face_img = img[rect['y']:rect['y']+rect['h'], rect['x']:rect['x']+rect['w']]
+
+            # writing image to folder
+            face_img = cv2.resize(face_img, (face_image_size, face_image_size))
+            cv2.imwrite(folder_name+'/'+face_name, face_img)
+
+        print("Finished saving training data")
+
+        print("Training Classifier")
+        self.__faceRecognitionEngine.train()
+        print("Training Finished")
+
+
     def processImage(self, img):
 
         img, face_images, faces_rects = self.__faceDetectionEngine.detect_faces(img)

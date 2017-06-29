@@ -1,8 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# import resources.facenet
-
 from face.recognition.face_recognition_module_interface import *
 from GlobalEntities import *
 
@@ -86,27 +84,39 @@ class FacenetEngine(FaceRecognitionInterface):
                 nrof_images = len(paths)
                 nrof_batches_per_epoch = int(math.ceil(1.0*nrof_images / self.__batch_size))
                 emb_array = np.zeros((nrof_images, embedding_size))
+                augmented_labels = []
                 for i in range(nrof_batches_per_epoch):
                     start_index = i*self.__batch_size
                     end_index = min((i+1)*self.__batch_size, nrof_images)
+
                     paths_batch = paths[start_index:end_index]
-                    images = facenet.load_data(paths_batch, False, False, self.__image_size)
-                    feed_dict = { images_placeholder:images, phase_train_placeholder:False }
+                    labels_batch = labels[start_index:end_index]
+
+                    # images_list = facenet.load_data(paths_batch, False, False, self.__image_size)
+                    images_batch, labels_batch = facenet.read_and_augment_data(paths_batch, labels_batch,
+                            self.__image_size, self.__batch_size, 20, True, True, True, 10, shuffle=True)
+
+                    augmented_labels.append(labels_batch)
+
+                    feed_dict = { images_placeholder:images_batch, phase_train_placeholder:False }
                     emb_array[start_index:end_index,:] = sess.run(embeddings, feed_dict=feed_dict)
 
                 classifier_filename_exp = os.path.expanduser(self.__classifier_filename)
 
-                # Train classifier
-                print('Training classifier')
-                self.__classifier.fit(emb_array, labels)
 
-                # Create a list of class names
-                class_names = [ cls.name.replace('_', ' ') for cls in dataset]
+                print(len(augmented_labels))
 
-                # Saving classifier model
-                with open(classifier_filename_exp, 'wb') as outfile:
-                    pickle.dump((self.__classifier, class_names), outfile)
-                print('Saved classifier model to file "%s"' % classifier_filename_exp)
+                # # Train classifier
+                # print('Training classifier')
+                # self.__classifier.fit(emb_array, augmented_labels)
+                #
+                # # Create a list of class names
+                # class_names = [ cls.name.replace('_', ' ') for cls in dataset]
+                #
+                # # Saving classifier model
+                # with open(classifier_filename_exp, 'wb') as outfile:
+                #     pickle.dump((self.__classifier, class_names), outfile)
+                # print('Saved classifier model to file "%s"' % classifier_filename_exp)
 
     def predict_proba(self, imgs):
         with tf.Graph().as_default():
