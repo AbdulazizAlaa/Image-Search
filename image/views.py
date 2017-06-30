@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from image.serializers import ImageRetrieveSerializer, ImageUploadSerializer, TagSerializer, TagTextSerializer, TagUsernameSerializer
+from image.serializers import (ImageRetrieveSerializer, ImageUploadSerializer,
+                                TagSerializer, TagTextSerializer, TagUsernameSerializer)
 from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag, TagText, TagUsername
@@ -18,36 +19,41 @@ from langdetect import detect
 
 # from engine.cv.face import MTCNN_engine
 # Create your views here.
-# class ImageUpload(APIView):
-#   permission_classes = (permissions.IsAuthenticated,)
-#
-#   def post(self, request, format=None):
-#       print(request.data)
-#       serializer = ImageUploadSerializer(data=request.data)
-#
-#       if serializer.is_valid():
-#           serializer.save()
-#           print serializer.data
-#           imgName = serializer.data['image'].split('/')[2]
-#           image = Image.objects.filter(image__icontains=imgName)[0]
-#
-#           tag = Tag.objects.get(tag="aziz")
-#               image.Tags.add(tag)
-#
-#               tag = Tag.objects.get(tag="yomna")
-#                   image.Tags.add(tag)
-#
-#                   tag = Tag.objects.get(tag="omar")
-#                   #image.Tags.add(tag)
-#
-#                   tag = Tag.objects.get(tag="ali")
-#                   image.Tags.add(tag)
-#
-#           text = {'status': 1, 'image':serializer.data}
-#           return Response(text)
-#       else:
-#           text = {'status':-1, 'image':serializer.errors}
-#           return Response(text)
+
+
+class ImageUpload(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, format=None):
+        print(request.data)
+        image = request.data.get('image')
+        uploaded_by = request.user.username
+
+        myjson = {'image': image, 'uploaded_by': uploaded_by}
+        serializer = ImageUploadSerializer(data=myjson)
+        if serializer.is_valid():
+            serializer.save()
+            print serializer.data
+            # imgName = serializer.data['image'].split('/')[2]
+            # image = Image.objects.filter(image__icontains=imgName)[0]
+
+            # tag = Tag.objects.get(tag="aziz")
+            # image.Tags.add(tag)
+
+            # tag = Tag.objects.get(tag="yomna")
+            # image.Tags.add(tag)
+
+            # tag = Tag.objects.get(tag="omar")
+            # # image.Tags.add(tag)
+
+            # tag = Tag.objects.get(tag="ali")
+            # image.Tags.add(tag)
+
+            text = {'status': 1, 'image': serializer.data}
+            return Response(text)
+        else:
+            text = {'status': -1, 'image': serializer.errors}
+            return Response(text)
 
 
 class RenderImage(APIView):
@@ -75,10 +81,14 @@ class RenderImage(APIView):
                 params.append({'tag': tag})
         else:
             # call Arabic model...
-            arabic_model = ANER.ANER()
-            Tags = arabic_model.solve(text)
-            # Serialize input data
-            serializer = ImageRetrieveSerializer(data={'Tags': params})
+            # arabic_model = ANER.ANER()
+            # Tags = arabic_model.solve(text)
+            Tags = ["arabic_name", "arabic_name", "arabic_name"]
+
+            for tag in Tags:
+                params.append({'tag': tag})
+        # Serialize input data
+        serializer = ImageRetrieveSerializer(data={'Tags': params})
 
         # Array for all images urls
         output = []
@@ -131,46 +141,61 @@ class RenderImage(APIView):
 #       myimage = request.data
 
 
-class UploadImage(APIView):
-    # permission_classes = (permissions.IsAuthenticated,)
+class AddTag(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request):
-        print(request.data)
+        # print(request.data)
         # Get username by adding the token in header:
         # Authorization: JWT token
         user = request.user.username
         print user
         # text_tag = []
         text_tag = request.data.get("tag_text")
-        print text_tag
+        # print text_tag
         # username_tag = []
         username_tag = request.data.get("tag_username")
+        # print text_tag
         image = request.data.get("image")
 
-        jsonText_TagText = {'image':image, 'tag':text_tag, 'user':user}
-        jsonText_TagUsername = {'image':image, "tag":username_tag,'user':user}
-        print "hiii"
-        tagArray = []
-        for tag in text_tag:
-            tagArray.append(tag)
-        print tagArray
-        serializer_tag = TagSerializer(data = tagArray, many = True)
-        serializer_text_tag = TagTextSerializer(data = jsonText_TagText)
-        serializer_username_tag = TagUsernameSerializer(data = jsonText_TagUsername)
+        jsonText_TagText = {'image': image, 'tag': text_tag, 'user': user}
+        # print jsonText_TagText
+        jsonText_TagUsername = {'image': image, "tag": username_tag, 'user': user}
+        # print jsonText_TagText
+        # print jsonText_TagUsername
+        tagArray = text_tag
+        # for tag in text_tag:
+        #     tagArray.append(tag)
+        # # print tagArray
+        serializer_tag = TagSerializer(data=tagArray)
+        serializer_text_tag = TagTextSerializer(data=jsonText_TagText)
+        serializer_username_tag = TagUsernameSerializer(data=jsonText_TagUsername)
         # print serializer_username_tag.is_valid()
         # print serializer_username_tag.errors
         # print MTCNN_engine.
         if(serializer_tag.is_valid()):
+            print serializer_tag.validated_data
+            print serializer_tag.data
             serializer_tag.save()
-            print "tags saved in table Tags"
+            # print "tags saved in table Tags"
+        # print jsonText_TagText
         if(serializer_text_tag.is_valid()):
+            # print serializer_text_tag.validated_data
             serializer_text_tag.save()
-            print "text tags are saved in text tags"
-        print serializer_text_tag.errors
-        if(serializer_username_tag.is_valid()):
-            print serializer_username_tag.save()
-            print "username tags are saved in text tags"
-        print serializer_username_tag.errors
         # print serializer_text_tag.data
+        # print serializer_text_tag.errors
+        # print serializer_username_tag.is_valid()
+        if(serializer_username_tag.is_valid()):
+            print serializer_username_tag.validated_data
+            print("username tags saved in table")
+            print serializer_username_tag.save()
+        # print serializer_username_tag.errors
+        # print serializer_username_tag.data
+
+        # # print serializer_text_tag.data
+        print serializer_text_tag.is_valid()
+        print serializer_text_tag.data
+        print serializer_text_tag.errors
         return Response()
 
 
@@ -178,7 +203,7 @@ class getUsername(APIView):
     def get(self, request):
         q = request.GET.get("q")
         # icontains acts as LIKE in sql, icontains is case insensitive
-        search = User.objects.filter(username__icontains = q).values_list('username')
+        search = User.objects.filter(username__icontains=q).values_list('username')
         print search
         text = {'results': list(search)}
         print text

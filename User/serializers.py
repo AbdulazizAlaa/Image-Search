@@ -15,19 +15,28 @@ class UserDataSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.ModelSerializer):
 
-	
+
 	class Meta:
 		model = User
 		#fields I want only
 		fields = ('username',  'password',)
 
 class UserTagSerializer(serializers.ModelSerializer):
-	username = serializers.CharField()
-	
+	# username = serializers.CharField()
+
 	class Meta:
 		model = User
 		#fields I want only
-		fields = ('username', )
+		fields = ('id', )
+
+
+class UsernameTagSerializer(serializers.ModelSerializer):
+    # username = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field="username")
+
+    class Meta:
+        model = User
+        # fields I want only
+        fields = ('username', )
 
 class ImageSerializer(serializers.ModelSerializer):
 	image = serializers.ImageField(max_length=None, use_url=True)
