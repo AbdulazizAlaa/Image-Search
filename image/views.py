@@ -138,7 +138,10 @@ class RenderImage(APIView):
 # then send the image back w/ coordinates, width, height
 # class FaceDetection(APIView):
 #   def post(self, request):
-#       myimage = request.data
+#       myimage = request.data.get('image')
+#       engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine', 'face_recognition': 'facenet', 'object_detection_recognition': 'inception'})
+#       results = engine.processImage(myimage)
+#       return Response(results)
 
 
 class AddTag(APIView):
