@@ -174,8 +174,8 @@ class AddTag(APIView):
         # print serializer_username_tag.errors
         # print MTCNN_engine.
         if(serializer_tag.is_valid()):
-            print serializer_tag.validated_data
-            print serializer_tag.data
+            # print serializer_tag.validated_data
+            # print serializer_tag.data
             serializer_tag.save()
             # print "tags saved in table Tags"
         # print jsonText_TagText
@@ -186,16 +186,17 @@ class AddTag(APIView):
         # print serializer_text_tag.errors
         # print serializer_username_tag.is_valid()
         if(serializer_username_tag.is_valid()):
-            print serializer_username_tag.validated_data
-            print("username tags saved in table")
-            print serializer_username_tag.save()
+            # print serializer_username_tag.data
+            serializer_username_tag.save()
         # print serializer_username_tag.errors
-        # print serializer_username_tag.data
 
         # # print serializer_text_tag.data
-        print serializer_text_tag.is_valid()
-        print serializer_text_tag.data
-        print serializer_text_tag.errors
+        # print serializer_text_tag.is_valid()
+        # print serializer_text_tag.validated_data
+        # print serializer_text_tag.errors
+        print serializer_username_tag.is_valid()
+        print serializer_username_tag.data
+        print serializer_username_tag.errors
         return Response()
 
 

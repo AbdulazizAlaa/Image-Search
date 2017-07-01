@@ -37,6 +37,10 @@ class UsernameTagSerializer(serializers.ModelSerializer):
         model = User
         # fields I want only
         fields = ('username', )
+        # To avoid the unique validator constraint
+        extra_kwargs = {
+            'username': {'validators': []},
+        }
 
 class ImageSerializer(serializers.ModelSerializer):
 	image = serializers.ImageField(max_length=None, use_url=True)

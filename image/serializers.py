@@ -64,25 +64,26 @@ class TagTextSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
     # def create(self, validated_data):
-    #     tag_data = []
+    #     # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
+    #     # print tag_username
     #     print validated_data
-    #     # for i in validated_data['tag']:
-    #     #     print i
-    #     #     tag_data.append(i)
-    #     # print tag_data
-    #     print validated_data['tag']
-    #     tag_data = validated_data['tag']
-    #     tag = Tag.objects.get_or_create(tag=tag_data)
-    #     validated_data.pop('tag')
-    #     print validated_data
-    #     TagText.objects.create(tag=tag, **validated_data)
-    #     print "done"
-    #     return tag
+    #     image = Image.objects.get(id=validated_data['image_id'])
+    #     t = TagUsername.objects.create(image=image, user=validated_data['user'])
+    #     for tag in validated_data['tag']:
+    #         try:
+    #             print tag['tag']
+    #             tag = Tag.objects.get(tag=tag['tag'])
+    #             print tag
+    #             t.tag.add(tag)
+    #         except User.DoesNotExist:
+    #             print "exception"
+    #             pass
+    #     return t
 
 
 class TagUsernameSerializer(serializers.ModelSerializer):
-    tag = UsernameTagSerializer(read_only=True)
-    user = serializers.CharField(source='user_username')
+    tag = UsernameTagSerializer(many=True)
+    user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field="username")
     image = serializers.CharField(source='image_id')
 
     class Meta:
@@ -90,10 +91,20 @@ class TagUsernameSerializer(serializers.ModelSerializer):
         fields = ('tag', 'user', 'image')
 
     def create(self, validated_data):
-        # tag_username = super(serializers.ModelSerializer, self).create(validated_data=validated_data)
+        # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
         # print tag_username
-        print validated_data['tag']
-        for i in validated_data['tag']:
-            user = User.objects.get(username=i['username'])
-            tag_username.tag.add(user)
-        return tag_username
+        tag_username = []
+        print validated_data
+        image = Image.objects.get(id=validated_data['image_id'])
+        t = TagUsername.objects.create(image=image, user=validated_data['user'])
+        for tag in validated_data['tag']:
+            try:
+                print tag['username']
+                user = User.objects.get(username=tag['username'])
+                print user
+                t.tag.add(user)
+                # tag_username.append(t)
+            except User.DoesNotExist:
+                print "exception"
+                pass
+        return t
