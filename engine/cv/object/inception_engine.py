@@ -51,11 +51,12 @@ from engine.cv.object.object_recognition_module_interface import *
 from engine.cv.object.node_lookup import *
 
 class InceptionEngine(ObjectRecognitionInterface):
-    def __init__(self, model_dir='engine/cv/resources/inception', num_top_predictions=10):
+    def __init__(self, model_dir='engine/cv/resources/inception', num_top_predictions=10, threshold=.2):
         self.__num_top_predictions = num_top_predictions
         self.__model_dir = model_dir
         self.__DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
-
+        self.__threshold = threshold
+        
         # download and extract model file if not present
         self.maybe_download_and_extract()
 
@@ -125,10 +126,11 @@ class InceptionEngine(ObjectRecognitionInterface):
             objects = []
             top_k = predictions.argsort()[-self.__num_top_predictions:][::-1]
             for node_id in top_k:
-                human_string = node_lookup.id_to_string(node_id)
-                for obj in human_string.split(','):
-                    objects.append(obj)
                 score = predictions[node_id]
-                print('%s (score = %.5f)' % (human_string, score))
+                if(score > self.__threshold):
+                    human_string = node_lookup.id_to_string(node_id)
+                    for obj in human_string.split(','):
+                        objects.append(obj)
+                    print('%s (score = %.5f)' % (human_string, score))
 
             return objects
