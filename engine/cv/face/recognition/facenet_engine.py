@@ -119,6 +119,9 @@ class FacenetEngine(FaceRecognitionInterface):
                 # print('Saved classifier model to file "%s"' % classifier_filename_exp)
 
     def predict_proba(self, imgs):
+        if(len(imgs) == 0):
+            print('no faces to process.')
+            return []
         with tf.Graph().as_default():
 
             with tf.Session() as sess:

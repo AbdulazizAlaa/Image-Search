@@ -56,7 +56,7 @@ class InceptionEngine(ObjectRecognitionInterface):
         self.__model_dir = model_dir
         self.__DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
         self.__threshold = threshold
-        
+
         # download and extract model file if not present
         self.maybe_download_and_extract()
 
@@ -125,6 +125,8 @@ class InceptionEngine(ObjectRecognitionInterface):
             # TODO only return over some threshold
             objects = []
             top_k = predictions.argsort()[-self.__num_top_predictions:][::-1]
+            max_score = predictions[np.argmax(predictions)]
+            self.__threshold = max_score/4
             for node_id in top_k:
                 score = predictions[node_id]
                 if(score > self.__threshold):
