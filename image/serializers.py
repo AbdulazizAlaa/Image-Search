@@ -94,17 +94,17 @@ class TagUsernameSerializer(serializers.ModelSerializer):
         # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
         # print tag_username
         tag_username = []
-        print validated_data
+        print (validated_data)
         image = Image.objects.get(id=validated_data['image_id'])
         t = TagUsername.objects.create(image=image, user=validated_data['user'])
         for tag in validated_data['tag']:
             try:
-                print tag['username']
+                print (tag['username'])
                 user = User.objects.get(username=tag['username'])
-                print user
+                print (user)
                 t.tag.add(user)
                 # tag_username.append(t)
             except User.DoesNotExist:
-                print "exception"
+                print ("exception")
                 pass
         return t

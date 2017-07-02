@@ -10,7 +10,7 @@ import cv2
 # Load an color image in grayscale
 # img = cv2.imread('/home/abdulaziz/Downloads/testcases/1.jpg',1) #change this with any other image on your computer
 # img = cv2.imread('/home/abdulaziz/workspace/Machine Learning/graduation_project/aziz.jpg', 1) #change this with any other image on your computer
-img = cv2.imread('/home/abdulaziz/Downloads/test/obj1.jpg',1) #change this with any other image on your computer
+img = cv2.imread('/home/abdulaziz/Downloads/test/ayah_1.jpg',1) #change this with any other image on your computer
 # img = cv2.imread('/home/abdulaziz/Downloads/testcases/6.jpg',1) #change this with any other image on your computer
 
 # creating engine instance

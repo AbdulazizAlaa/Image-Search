@@ -38,7 +38,7 @@ urlpatterns = [
     url(r'^docs/', include('rest_framework_docs.urls')),
     # url(r'^api/', include('api.urls', namespace="documentation")),
 
-    
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_URL)
 
 # I added this route to catch any failing routes, this is a hack
