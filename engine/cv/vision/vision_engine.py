@@ -7,6 +7,7 @@ from face.detection.MTCNN_engine import *
 from face.detection.opencv_engine import *
 from face.recognition.facenet_engine import *
 from object.inception_engine import *
+from captions.captions_engine import *
 
 import numpy as np
 import cv2
@@ -55,6 +56,10 @@ class VisionEngine():
                             model_dir='engine/cv/resources/inception',
                             num_top_predictions=10)
 
+        # Captions generation engine
+        # if(config['captions_generation_engine'] == 'captions'):
+        self.__captionsEngine = CaptionsEngine()
+
 
         print("Engine Created:")
         print("Face Detection Engine: ")
@@ -63,6 +68,8 @@ class VisionEngine():
         print(self.__faceRecognitionEngine)
         print("Object Engine: ")
         print(self.__objectEngine)
+        print("Captions Engine: ")
+        print(self.__captionsEngine)
 
     def store_face_training_data(self, img, rects, img_name):
         '''store_training_data
@@ -141,5 +148,8 @@ class VisionEngine():
         # getting object classes from image
         objects = self.__objectEngine.predict_proba(img)
 
-        data = {'faces': faces,'objects': objects}
+        # getting captions from images
+        captions = self.__captionsEngine.generate_caption(img)
+
+        data = {'faces': faces,'objects': objects, 'captions': captions}
         return data
