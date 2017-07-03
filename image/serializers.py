@@ -88,21 +88,24 @@ class TagUsernameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TagUsername
-        fields = ('tag', 'user', 'image')
+        fields = ('tag', 'user', 'image', 'width', 'length', 'xCoordinate', 'yCoordinate')
 
     def create(self, validated_data):
         # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
         # print tag_username
         tag_username = []
         print (validated_data)
+        print (validated_data['tag'])
         image = Image.objects.get(id=validated_data['image_id'])
-        t = TagUsername.objects.create(image=image, user=validated_data['user'])
+        t = TagUsername.objects.create(image=image,
+            user=validated_data['user'])
         for tag in validated_data['tag']:
             try:
                 print (tag['username'])
                 user = User.objects.get(username=tag['username'])
                 print (user)
                 t.tag.add(user)
+                print (tag['width'])
                 # tag_username.append(t)
             except User.DoesNotExist:
                 print ("exception")

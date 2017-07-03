@@ -195,10 +195,16 @@ class AddTag(APIView):
         # print text_tag
         # username_tag = []
         username_tag = request.data.get("tag_username")
-        # print text_tag
+        print (username_tag)
         image = request.data.get("image")
-
-        jsonText_TagText = {'image': image, 'tag': text_tag, 'user': user}
+        # width = request.data.get['tag_']
+        jsonText_TagText = {'image': image,
+                            'tag': text_tag,
+                            'user': user}
+                            # 'width': width,
+                            # 'length':length,
+                            # 'x':x,
+                            # 'y':y}
         # print jsonText_TagText
         jsonText_TagUsername = {'image': image, "tag": username_tag, 'user': user}
         # print jsonText_TagText

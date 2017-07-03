@@ -34,10 +34,10 @@ class TagText(models.Model):
     image = models.ForeignKey(Image)
 
     # # Detection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField()
-    length = models.FloatField()
-    xCoordinate = models.FloatField()
-    yCoordinate = models.FloatField()
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
 
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -52,10 +52,10 @@ class TagUsername(models.Model):
     image = models.ForeignKey(Image)
 
     # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField()
-    length = models.FloatField()
-    xCoordinate = models.FloatField()
-    yCoordinate = models.FloatField()
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
 
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
