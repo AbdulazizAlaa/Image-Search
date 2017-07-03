@@ -216,3 +216,8 @@ class getUsername(APIView):
         text = {'results': list(search)}
         print text
         return Response(text)
+
+class getTextTag(APIView):
+	def get(self, request):
+		q = request.GET.get("q")
+		search = Tag.objects.filter(tag__icontains=q).values_list('tag', flat=True).distinct()
