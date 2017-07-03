@@ -34,8 +34,30 @@ class ImageUpload(APIView):
         print(request.data)
         image = request.data.get('image')
         uploaded_by = request.user.username
+        data = image.read()
+        # convert the image to a NumPy array and then read it into
+        # OpenCV format
+        image = np.asarray(bytearray(data), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-        myjson = {'image': image, 'uploaded_by': uploaded_by}
+        engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                          'face_recognition': 'facenet',
+                                          'object_detection_recognition': 'inception'})
+
+        results = engine.processImage(image)
+        print (results)
+        objects = results['objects']
+        caption =results['captions']
+        print (objects)
+        for i in objects:
+            serializer = TagSerializer(data={'tag': i})
+            # print ("hi")
+            if(serializer.is_valid()):
+                # print ("hadeer")
+                serializer.save()
+            else:
+                print (serializer.errors)
+        myjson = {'image': image, 'uploaded_by': uploaded_by, 'caption': caption}
         serializer = ImageUploadSerializer(data=myjson)
         if serializer.is_valid():
             serializer.save()
