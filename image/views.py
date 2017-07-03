@@ -17,8 +17,12 @@ from django.contrib.auth.models import User
 from rest_framework import permissions
 from langdetect import detect
 
-# from engine.cv.face import MTCNN_engine
-# Create your views here.
+from engine.cv.vision import vision_engine
+
+import numpy as np
+import cv2
+
+from engine.cv.face import MTCNN_engine
 
 
 class ImageUpload(APIView):
@@ -34,6 +38,9 @@ class ImageUpload(APIView):
         if serializer.is_valid():
             serializer.save()
             print serializer.data
+            
+            img = cv2.imread(image,1)
+            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine', 'face_recognition': 'facenet', 'object_detection_recognition': 'inception'})
             # imgName = serializer.data['image'].split('/')[2]
             # image = Image.objects.filter(image__icontains=imgName)[0]
 
