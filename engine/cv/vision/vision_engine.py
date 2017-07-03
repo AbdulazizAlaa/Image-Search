@@ -18,14 +18,17 @@ class VisionEngine():
     '''
     config defines the configuration for the different vision engines
     it has three keys:
-    1- face_detection ====> opencv_engine/openface_engine/MTCNN_engine
-    2- face_recognition ===> facenet
-    3- object_detection_recognition ===> yolo
+    1- face_detection ====> opencv_engine/openface_engine/MTCNN_engine/False
+    2- face_recognition ===> facenet/False
+    3- object_detection_recognition ===> yolo/inception/False
+    4- captions ==> True/False
     '''
     def __init__(self, config):
         self.__config = config
         #face detection engine
-        if(config['face_detection'] == 'opencv_engine'):
+        if(config['face_detection'] == False):
+            self.__faceDetectionEngine = None
+        elif(config['face_detection'] == 'opencv_engine'):
             self.__faceDetectionEngine = OpenCVFaceEngine("engine")
         elif(config['face_detection'] == 'openface_engine'):
             self.__faceDetectionEngine = None
@@ -37,7 +40,9 @@ class VisionEngine():
         self.__face_model = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/resources/facenet/20170512-110547/20170512-110547.pb'
         self.__face_classifier = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/resources/facenet/face_classifier.pkl'
         #face recogition engine
-        if(config['face_recognition'] == 'facenet'):
+        if(config['face_recognition'] == False):
+            self.__faceRecognitionEngine = None
+        elif(config['face_recognition'] == 'facenet'):
             self.__faceRecognitionEngine = FacenetEngine(
                             image_size=160,
                             data_dir=self.__face_data_dir,
@@ -49,16 +54,20 @@ class VisionEngine():
                             hidden_layer_sizes=(1000, 200))
 
         #object detection and recognition engine
-        if(config['object_detection_recognition'] == 'yolo'):
+        if(config['object_detection_recognition'] == False):
             self.__objectEngine = None
-        if(config['object_detection_recognition'] == 'inception'):
+        elif(config['object_detection_recognition'] == 'yolo'):
+            self.__objectEngine = None
+        elif(config['object_detection_recognition'] == 'inception'):
             self.__objectEngine = InceptionEngine(
                             model_dir='engine/cv/resources/inception',
                             num_top_predictions=10)
 
         # Captions generation engine
-        # if(config['captions_generation_engine'] == 'captions'):
-        self.__captionsEngine = CaptionsEngine()
+        if(config['captions_generation_engine'] == False):
+            self.__captionsEngine = None
+        elif(config['captions_generation_engine'] == True):
+            self.__captionsEngine = CaptionsEngine()
 
 
         print("Engine Created:")
@@ -120,36 +129,32 @@ class VisionEngine():
 
     def processImage(self, img):
 
-        img, face_images, faces_rects = self.__faceDetectionEngine.detect_faces(img)
+        if(self.__config['face_detection'] != False):
+            img, face_images, faces_rects = self.__faceDetectionEngine.detect_faces(img)
 
-        # img_name = "IMG_0979"
-        # person_name = 'aziz'
-        # if not os.path.exists(self.__face_data_dir+'/'+person_name):
-        #     os.mkdir(self.__face_data_dir+'/'+person_name)
-        #
-        # face_count = 0
-        # for face in face_images:
-        #     face = cv2.resize(face, (160, 160))
-        #     # cv2.imwrite(self.__face_data_dir+'/'+person_name+'/'+img_name+'_face_'+str(face_count)+'.jpg', face)
-        #     # face_count = face_count+1
-        #     cv2.imshow("face", face)
-        #     cv2.waitKey(0)
+            faces = []
+            if(self.__config['face_recognition'] != False):
+                # for face in face_images:
+                face_predictions = self.__faceRecognitionEngine.predict_proba(face_images)
 
-        # for face in face_images:
-        face_predictions = self.__faceRecognitionEngine.predict_proba(face_images)
+                # adding the predicted class names to face rectangles
+                for i in range(len(face_predictions)):
+                    temp_rect = faces_rects[i]
+                    temp_rect['name'] = face_predictions[i]
+                    faces.append(temp_rect)
+            else:
+                faces = faces_rects
 
-        # adding the predicted class names to face rectangles
-        faces = []
-        for i in range(len(face_predictions)):
-            temp_rect = faces_rects[i]
-            temp_rect['name'] = face_predictions[i]
-            faces.append(temp_rect)
+        objects = []
+        if(self.__config['object_detection_recognition'] != False):
+            # getting object classes from image
+            objects = self.__objectEngine.predict_proba(img)
 
-        # getting object classes from image
-        objects = self.__objectEngine.predict_proba(img)
-
-        # getting captions from images
-        captions = self.__captionsEngine.generate_caption(img)
+        captions = ''
+        if(self.__config['captions_generation_engine'] != False):
+            # getting captions from images
+            captions = self.__captionsEngine.generate_caption(img)
 
         data = {'faces': faces,'objects': objects, 'captions': captions}
+
         return data
