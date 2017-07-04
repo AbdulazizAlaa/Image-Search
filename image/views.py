@@ -226,3 +226,7 @@ class getTextTag(APIView):
 		text = {'results': list(search)}
 		print text
 		return Response(text)
+
+class MyPhotosFolder(APIView):
+	def get(self, request):
+		
