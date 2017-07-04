@@ -26,7 +26,6 @@ import cv2
 # from engine.cv.face import MTCNN_engine
 # Create your views here.
 
-
 class ImageUpload(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -34,48 +33,34 @@ class ImageUpload(APIView):
         print(request.data)
         image = request.data.get('image')
         uploaded_by = request.user.username
-        data = image.read()
-        # convert the image to a NumPy array and then read it into
-        # OpenCV format
-        image = np.asarray(bytearray(data), dtype="uint8")
-        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
 
-        engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                          'face_recognition': 'facenet',
-                                          'object_detection_recognition': 'inception'})
-
-        results = engine.processImage(image)
-        print (results)
-        objects = results['objects']
-        caption =results['captions']
-        print (objects)
-        for i in objects:
-            serializer = TagSerializer(data={'tag': i})
-            # print ("hi")
-            if(serializer.is_valid()):
-                # print ("hadeer")
-                serializer.save()
-            else:
-                print (serializer.errors)
-        myjson = {'image': image, 'uploaded_by': uploaded_by, 'caption': caption}
+        myjson = {'image': image, 'uploaded_by': uploaded_by, 'caption': 'caption'}
         serializer = ImageUploadSerializer(data=myjson)
         if serializer.is_valid():
             serializer.save()
             print (serializer.data)
-            # imgName = serializer.data['image'].split('/')[2]
-            # image = Image.objects.filter(image__icontains=imgName)[0]
 
-            # tag = Tag.objects.get(tag="aziz")
-            # image.Tags.add(tag)
+            image_file = serializer.data['image']
 
-            # tag = Tag.objects.get(tag="yomna")
-            # image.Tags.add(tag)
+            image_data = cv2.imread(image_file)
 
-            # tag = Tag.objects.get(tag="omar")
-            # # image.Tags.add(tag)
+            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                              'face_recognition': 'facenet',
+                                              'object_detection_recognition': 'inception'})
 
-            # tag = Tag.objects.get(tag="ali")
-            # image.Tags.add(tag)
+            results = engine.processImage(image_data)
+
+            objects = results['objects']
+            # caption = results['captions']
+            print (objects)
+            for i in objects:
+                tag_serializer = TagSerializer(data={'tag': i})
+                # print ("hi")
+                if(tag_serializer.is_valid()):
+                    # print ("hadeer")
+                    tag_serializer.save()
+                else:
+                    print (tag_serializer.errors)
 
             text = {'status': 1, 'image': serializer.data}
             return Response(text)
