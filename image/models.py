@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.contrib import admin
 import os
 import uuid
-from User.models import User
 
 class Tag(models.Model):
     tag = models.CharField(max_length=225, blank=True, unique=True)
@@ -53,7 +52,7 @@ class TagUsername(models.Model):
     tag = models.ManyToManyField(User, related_name='tag_username')
     image = models.ForeignKey(Image)
 
-    
+
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

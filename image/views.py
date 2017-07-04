@@ -278,17 +278,17 @@ class MyPhotosFolder(APIView):
 
         for image in images:
         	images_url.append(Image.image.url)
-        	
+
         return Response(image.image.url)
 
 class photosOfMe(APIView):
-	def get(self,request):
-		username = request.user.username
-		images = TagUsername.objects.filter(tag=username)
+    def get(self,request):
+        username = request.user.username
+        images = TagUsername.objects.filter(tag=username)
 
-		images_url = []
+        images_url = []
 
-		for image in images:
-			images_url.append(image.image.url)
-		
-		return Response(images_url)
+        for image in images:
+            images_url.append(image.image.url)
+
+        return Response(images_url)
