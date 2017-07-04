@@ -274,5 +274,21 @@ class MyPhotosFolder(APIView):
         # 	image = request.data.get("image")
         images = Image.objects.filter(uploaded_by=user_id)
 
+        images_url = []
+
         for image in images:
-            return Response(image.image.url)
+        	images_url.append(Image.image.url)
+        	
+        return Response(image.image.url)
+
+class photosOfMe(APIView):
+	def get(self,request):
+		username = request.user.username
+		images = TagUsername.objects.filter(tag=username)
+
+		images_url = []
+
+		for image in images:
+			images_url.append(image.image.url)
+		
+		return Response(images_url)
