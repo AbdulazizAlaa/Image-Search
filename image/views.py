@@ -176,7 +176,7 @@ class AddTag(APIView):
         jsonText_TagText = {'image': image,
                             'tag': text_tag,
                             'user': user}
-                            
+
         jsonText_TagUsername = {'image': image,
                                 "tag": username_tag,
                                 'user': user}
@@ -208,7 +208,7 @@ class AddTag(APIView):
         id_text = serializer_text_tag.data['id']
 
         rect = []
-        # Save rectangles of the tags of username 
+        # Save rectangles of the tags of username
         for obj in enumerate(username_tag):
             temp = {'width': obj[1]['width'],
                     'length': obj[1]['length'],
@@ -225,7 +225,7 @@ class AddTag(APIView):
             print (':(((')
 
         rect1 = []
-        # Save rectangles of the tags of texts 
+        # Save rectangles of the tags of texts
         for obj in enumerate(text_tag):
             temp = {'width': obj[1]['width'],
                     'length': obj[1]['length'],
@@ -239,7 +239,7 @@ class AddTag(APIView):
             # print (ser.data)
         else:
             print (':(((')
-        
+
         # print (rect1)
             # print (ser.errors)
         return Response()
@@ -259,19 +259,20 @@ class getTextTag(APIView):
 	def get(self, request):
 		q = request.GET.get("q")
 		search = Tag.objects.filter(tag__icontains=q).values_list('tag', flat=True).distinct()
-		print search
-		
+		print (search)
+
 		text = {'results': list(search)}
-		print text
+		print (text)
 		return Response(text)
 
 class MyPhotosFolder(APIView):
-	def get(self, request):
-		user = request.user.username
-		# imageOwner = request.data.get("uploaded_by")
+    def get(self, request):
+        user_id = request.user.id
+        # imageOwner = request.data.get("uploaded_by")
 
-		# if imageOwner=user :
-		# 	image = request.data.get("image")
-		queryset = Image.objects.filter(uploaded_by=user)
-		return Response(queryset)
+        # if imageOwner=user :
+        # 	image = request.data.get("image")
+        images = Image.objects.filter(uploaded_by=user_id)
 
+        for image in images:
+            return Response(image.image.url)
