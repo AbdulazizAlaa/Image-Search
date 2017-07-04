@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
 from image.serializers import (ImageRetrieveSerializer, ImageUploadSerializer,
-                                TagSerializer, TagTextSerializer, TagUsernameSerializer)
+                                TagSerializer, TagTextSerializer, TagUsernameSerializer, TagUsernameRectangleSerializer)
 from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag, TagText, TagUsername
@@ -22,8 +22,6 @@ from engine.cv.vision import vision_engine
 import numpy as np
 import cv2
 
-from engine.cv.face import MTCNN_engine
-
 
 class ImageUpload(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -32,29 +30,34 @@ class ImageUpload(APIView):
         print(request.data)
         image = request.data.get('image')
         uploaded_by = request.user.username
-
-        myjson = {'image': image, 'uploaded_by': uploaded_by}
+        myjson = {'image': image, 'uploaded_by': uploaded_by, 'caption': 'caption'}
         serializer = ImageUploadSerializer(data=myjson)
         if serializer.is_valid():
             serializer.save()
-            print serializer.data
-            
-            img = cv2.imread(image,1)
-            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine', 'face_recognition': 'facenet', 'object_detection_recognition': 'inception'})
-            # imgName = serializer.data['image'].split('/')[2]
-            # image = Image.objects.filter(image__icontains=imgName)[0]
+            print (serializer.data)
 
-            # tag = Tag.objects.get(tag="aziz")
-            # image.Tags.add(tag)
 
-            # tag = Tag.objects.get(tag="yomna")
-            # image.Tags.add(tag)
+            image_file = serializer.data['image']
 
-            # tag = Tag.objects.get(tag="omar")
-            # # image.Tags.add(tag)
+            image_data = cv2.imread(image_file)
 
-            # tag = Tag.objects.get(tag="ali")
-            # image.Tags.add(tag)
+            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                              'face_recognition': 'facenet',
+                                              'object_detection_recognition': 'inception'})
+
+            results = engine.processImage(image_data)
+
+            objects = results['objects']
+            # caption = results['captions']
+            print (objects)
+            for i in objects:
+                tag_serializer = TagSerializer(data={'tag': i})
+                # print ("hi")
+                if(tag_serializer.is_valid()):
+                    # print ("hadeer")
+                    tag_serializer.save()
+                else:
+                    print (tag_serializer.errors)
 
             text = {'status': 1, 'image': serializer.data}
             return Response(text)
@@ -143,67 +146,102 @@ class RenderImage(APIView):
 
 # Get Image and apply face detection algorithm on it
 # then send the image back w/ coordinates, width, height
-# class FaceDetection(APIView):
-#   def post(self, request):
-#       myimage = request.data
+class FaceDetection(APIView):
+  def post(self, request):
+      image_data = request.data.get('image')
+
+      data = image_data.read()
+      # convert the image to a NumPy array and then read it into
+      # OpenCV format
+      image = np.asarray(bytearray(data), dtype="uint8")
+      image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+      engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                          'face_recognition': 'facenet',
+                                          'object_detection_recognition': 'inception'})
+      results = engine.processImage(image)
+      return Response(results)
 
 
 class AddTag(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        # print(request.data)
         # Get username by adding the token in header:
         # Authorization: JWT token
         user = request.user.username
-        print user
-        # text_tag = []
         text_tag = request.data.get("tag_text")
-        # print text_tag
-        # username_tag = []
         username_tag = request.data.get("tag_username")
-        # print text_tag
         image = request.data.get("image")
+        jsonText_TagText = {'image': image,
+                            'tag': text_tag,
+                            'user': user}
+                            
+        jsonText_TagUsername = {'image': image,
+                                "tag": username_tag,
+                                'user': user}
+        tagArray = []
+        for obj in enumerate(text_tag):
+            tagArray.append({'tag': obj[1]['tag']})
+        # print (tagArray)
 
-        jsonText_TagText = {'image': image, 'tag': text_tag, 'user': user}
-        # print jsonText_TagText
-        jsonText_TagUsername = {'image': image, "tag": username_tag, 'user': user}
-        # print jsonText_TagText
-        # print jsonText_TagUsername
-        tagArray = text_tag
-        # for tag in text_tag:
-        #     tagArray.append(tag)
-        # # print tagArray
-        serializer_tag = TagSerializer(data=tagArray)
+        serializer_tag = TagSerializer(data=tagArray, many=True)
+        # print (serializer_tag.is_valid())
         serializer_text_tag = TagTextSerializer(data=jsonText_TagText)
         serializer_username_tag = TagUsernameSerializer(data=jsonText_TagUsername)
-        # print serializer_username_tag.is_valid()
-        # print serializer_username_tag.errors
-        # print MTCNN_engine.
-        if(serializer_tag.is_valid()):
-            # print serializer_tag.validated_data
-            # print serializer_tag.data
-            serializer_tag.save()
-            # print "tags saved in table Tags"
-        # print jsonText_TagText
-        if(serializer_text_tag.is_valid()):
-            # print serializer_text_tag.validated_data
-            serializer_text_tag.save()
-        # print serializer_text_tag.data
-        # print serializer_text_tag.errors
-        # print serializer_username_tag.is_valid()
-        if(serializer_username_tag.is_valid()):
-            # print serializer_username_tag.data
-            serializer_username_tag.save()
-        # print serializer_username_tag.errors
 
-        # # print serializer_text_tag.data
-        # print serializer_text_tag.is_valid()
-        # print serializer_text_tag.validated_data
-        # print serializer_text_tag.errors
-        print serializer_username_tag.is_valid()
-        print serializer_username_tag.data
-        print serializer_username_tag.errors
+        if(serializer_tag.is_valid()):
+            try:
+                serializer_tag.save()
+            except:
+                print("duplicate")
+                pass
+            print ('tags saved')
+        if(serializer_text_tag.is_valid()):
+            serializer_text_tag.save()
+            print ('tags text saved')
+        if(serializer_username_tag.is_valid()):
+            serializer_username_tag.save()
+            print ('tags username saved')
+
+        id_username = serializer_username_tag.data['id']
+        id_text = serializer_text_tag.data['id']
+
+        rect = []
+        # Save rectangles of the tags of username 
+        for obj in enumerate(username_tag):
+            temp = {'width': obj[1]['width'],
+                    'length': obj[1]['length'],
+                    'xCoordinate': obj[1]['xCoordinate'],
+                    'yCoordinate': obj[1]['yCoordinate'],
+                    'tag_username': id_username}
+            rect.append(temp)
+        # print (rect)
+        ser = TagUsernameRectangleSerializer(data=rect, many=True)
+        if (ser.is_valid()):
+            print ('heeeh')
+            # print (ser.data)
+        else:
+            print (':(((')
+
+        rect1 = []
+        # Save rectangles of the tags of texts 
+        for obj in enumerate(text_tag):
+            temp = {'width': obj[1]['width'],
+                    'length': obj[1]['length'],
+                    'xCoordinate': obj[1]['xCoordinate'],
+                    'yCoordinate': obj[1]['yCoordinate'],
+                    'tag_text': id_text}
+            rect1.append(temp)
+        ser = TagUsernameRectangleSerializer(data=rect1, many=True)
+        if (ser.is_valid()):
+            print ('heeeh')
+            # print (ser.data)
+        else:
+            print (':(((')
+        
+        # print (rect1)
+            # print (ser.errors)
         return Response()
 
 
@@ -212,9 +250,9 @@ class getUsername(APIView):
         q = request.GET.get("q")
         # icontains acts as LIKE in sql, icontains is case insensitive
         search = User.objects.filter(username__icontains=q).values_list('username')
-        print search
+        print (search)
         text = {'results': list(search)}
-        print text
+        print (text)
         return Response(text)
 
 class getTextTag(APIView):

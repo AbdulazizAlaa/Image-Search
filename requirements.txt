@@ -2,9 +2,13 @@ pandas
 numpy
 django
 djangorestframework
-mysql-python
+#mysql-python
+mysqlclient
 djangorestframework-jwt
 pycorenlp
 pillow
 keras
 fasttext
+langdetect
+django-rest-swagger
+django-rest-framework-docs

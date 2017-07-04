@@ -55,7 +55,7 @@ class Caption_Generator():
         with tf.variable_scope("RNN"):
             for i in range(self.n_lstm_steps):
                 if i > 0:
-                   #if this isn’t the first iteration of our LSTM we need to get the word_embedding corresponding
+                   #if this isnot the first iteration of our LSTM we need to get the word_embedding corresponding
                    # to the (i-1)th word in our caption
                     with tf.device("/cpu:0"):
                         current_embedding = tf.nn.embedding_lookup(self.word_embedding, caption_placeholder[:,i-1]) + self.embedding_bias
