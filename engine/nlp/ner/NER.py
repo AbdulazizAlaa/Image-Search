@@ -1,4 +1,4 @@
-from pycorenlp import StanfordCoreNLP
+#from pycorenlp import StanfordCoreNLP
 
 def solve(text, url='http://localhost', port='9000'):
     """This is where the magic happens."""
@@ -33,4 +33,3 @@ def findAndTitle(array, keyword):
         if item == keyword:
             array[idx + 1] = array[idx + 1].title()
     return array
-

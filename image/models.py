@@ -2,57 +2,77 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import admin
 import os
-from urlparse import urlparse
-from uuid import uuid4
-from User.models import User, UserData
-
-
-def my_upload_to(instance, filename):
-    # "instance" is an instance of Image
-    # return a path here
-    return 'images/' + str(instance.id)
-# Create your models here.
-class Image(models.Model):
-	# def path_and_rename(path):
-	#     def wrapper(instance, filename):
-	#         ext = filename.split('.')[-1]
-	#         # get filename
-	#         if instance.pk:
-	#             filename = '{}.{}'.format(instance.pk, ext)
-	#         else:
-	#             # set filename as random string
-	#             filename = '{}.{}'.format(uuid4().hex, ext)
-	#         # return the whole path to the file
-	#         return os.path.join(path, filename)
-	#     return wrapper
-	image = models.ImageField(upload_to = 'images/')
-	# uploaded_by = models.ForeignKey(User, null = True, related_name='uploaded_by')
-	# user = models.ManyToManyField(User)
-	# user = models.ManyToManyField(UserData, on_delete=models.v, blank=False)
-		# def __str__(self):
-		# 	return self.user.username
-	def __unicode__(self):
-	    return os.path.basename(self.image.name)
-	# filename = models.CharField(max_length=1000)
-
-
-
+import uuid
+from User.models import User
 
 class Tag(models.Model):
-	tag = models.CharField(max_length= 1000, blank=True)
-	# image = models.ForeignKey(Image, on_delete=models.CASCADE)
-	# image = backend team sucks
-	imageRelation = models.ManyToManyField(Image, related_name = 'tags')
+    tag = models.CharField(max_length=225, blank=True, unique=True)
 
-	# @api_view(['GET', 'POST'])
-	# def get_image(self, request, aid):
-	# 	try:
-	# 		image = Tag.objects.filter(tag_text=aid)
-	# 	except image.DoesNotExist :
-	# 		raise Error404
+    # class Meta:
+    #     unique_together = ('tag')
+    def __str__(self):
+        return self.tag
 
-	# 	serializer = ImageSerializer(image)
-	# 	return Response(serializer.data)
+# my_upload_to method to change the image title
+def my_upload_to(instance, filename):
+    # "instance" is an instance of Image
+    # split the image extension
+    name, extension = os.path.splitext(filename)
 
-	def __str__(self):
-		return self.tag
+    # return a path here, with adding the image extension
+    return 'user_{0}'.format(instance.uploaded_by.id) + '/' + str(uuid.uuid4()) + extension
+
+class Image(models.Model):
+    uploaded_by = models.ForeignKey(User, related_name='uploaded_by', on_delete=models.PROTECT)
+    image = models.ImageField(upload_to=my_upload_to)
+    caption = models.TextField()
+    def __unicode__(self):
+        return os.path.basename(self.image.name)
+
+
+class TagText(models.Model):
+    # the tag is a text
+    tag = models.ManyToManyField(Tag, related_name='tag_text')
+    image = models.ForeignKey(Image)
+
+    # # Detection Rectangle specs(width,height, coordinate x & coordinate y)
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
+
+    # who added this tag
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{}'.format(self.tag)
+
+
+class TagUsername(models.Model):
+    # the tag is person
+    tag = models.ManyToManyField(User, related_name='tag_username')
+    image = models.ForeignKey(Image)
+
+    
+    # who added this tag
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{}'.format(self.tag)
+
+
+class TagUsernameRectangle(models.Model):
+    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
+    tag_username = models.ForeignKey(TagUsername)
+
+class TagTextRectangle(models.Model):
+    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
+    tag_text = models.ForeignKey(TagText)
