@@ -1,4 +1,4 @@
-from image.models import Image, Tag, TagText, TagUsername
+from image.models import Image, Tag, TagText, TagUsername, TagUsernameRectangle, TagTextRectangle
 from User.serializers import UserTagSerializer, UserLoginSerializer, UsernameTagSerializer
 # from django.contrib.auth.models import Image
 from rest_framework import serializers
@@ -54,31 +54,32 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
 
 
 class TagTextSerializer(serializers.ModelSerializer):
-    tag = TagSerializer(read_only=True, many=True)
+    tag = TagSerializer(many=True)
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field="username")
     image = serializers.CharField(source='image_id')
 
     class Meta:
         model = TagText
-        # list_serializer_class = TagListSerializer
         fields = ('__all__')
 
-    # def create(self, validated_data):
-    #     # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
-    #     # print tag_username
-    #     print validated_data
-    #     image = Image.objects.get(id=validated_data['image_id'])
-    #     t = TagUsername.objects.create(image=image, user=validated_data['user'])
-    #     for tag in validated_data['tag']:
-    #         try:
-    #             print tag['tag']
-    #             tag = Tag.objects.get(tag=tag['tag'])
-    #             print tag
-    #             t.tag.add(tag)
-    #         except User.DoesNotExist:
-    #             print "exception"
-    #             pass
-    #     return t
+    def create(self, validated_data):
+        # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
+        # print tag_username
+        # print (validated_data)
+        # print (validated_data['tag'])
+        image = Image.objects.get(id=validated_data['image_id'])
+        t = TagText.objects.create(image=image,
+            user=validated_data['user'])
+        # print (validated_data)
+        for tag in validated_data['tag']:
+            try:
+                # print (tag['tag'])
+                tag = Tag.objects.get(tag=tag['tag'])
+                t.tag.add(tag)
+            except Tag.DoesNotExist:
+                print ("NO")
+                pass
+        return t
 
 
 class TagUsernameSerializer(serializers.ModelSerializer):
@@ -88,23 +89,40 @@ class TagUsernameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TagUsername
-        fields = ('tag', 'user', 'image')
+        fields = ('id', 'tag', 'user', 'image',)
 
     def create(self, validated_data):
         # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
         # print tag_username
-        tag_username = []
-        print (validated_data)
+        # print (validated_data)
+        # print (validated_data['tag'])
         image = Image.objects.get(id=validated_data['image_id'])
-        t = TagUsername.objects.create(image=image, user=validated_data['user'])
+        t = TagUsername.objects.create(image=image,
+            user=validated_data['user'])
         for tag in validated_data['tag']:
             try:
-                print (tag['username'])
+                # print (tag['username'])
                 user = User.objects.get(username=tag['username'])
-                print (user)
                 t.tag.add(user)
-                # tag_username.append(t)
             except User.DoesNotExist:
                 print ("exception")
                 pass
         return t
+
+
+class TagUsernameRectangleSerializer(serializers.ModelSerializer):
+    tag_username = serializers.CharField(source='tag_username.id')
+
+    class Meta:
+        model = TagUsernameRectangle
+        fields = ('__all__')
+    
+
+class TagTextRectangleSerializer(serializers.ModelSerializer):
+    tag_text = serializers.CharField(source='tag_text.id')
+
+    class Meta:
+        model = TagTextRectangle
+        fields = ('__all__')
+    
+

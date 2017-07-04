@@ -35,7 +35,7 @@ urlpatterns = [
    	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-token-auth/', obtain_jwt_token),
     # For API documentation(DRF)
-    url(r'^docs/', include('rest_framework_docs.urls')),
+    # url(r'^docs/', include('rest_framework_docs.urls')),
     # url(r'^api/', include('api.urls', namespace="documentation")),
 
 

@@ -6,8 +6,10 @@ import uuid
 from User.models import User
 
 class Tag(models.Model):
-    tag = models.CharField(max_length=1000, blank=True)
+    tag = models.CharField(max_length=225, blank=True, unique=True)
 
+    # class Meta:
+    #     unique_together = ('tag')
     def __str__(self):
         return self.tag
 
@@ -34,10 +36,10 @@ class TagText(models.Model):
     image = models.ForeignKey(Image)
 
     # # Detection Rectangle specs(width,height, coordinate x & coordinate y)
-    # width = models.FloatField()
-    # length = models.FloatField()
-    # xCoordinate = models.FloatField()
-    # yCoordinate = models.FloatField()
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
 
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -51,14 +53,26 @@ class TagUsername(models.Model):
     tag = models.ManyToManyField(User, related_name='tag_username')
     image = models.ForeignKey(Image)
 
-    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
-    # width = models.FloatField()
-    # length = models.FloatField()
-    # xCoordinate = models.FloatField()
-    # yCoordinate = models.FloatField()
-
+    
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{}'.format(self.tag)
+
+
+class TagUsernameRectangle(models.Model):
+    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
+    tag_username = models.ForeignKey(TagUsername)
+
+class TagTextRectangle(models.Model):
+    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
+    width = models.FloatField(blank=True, null=True)
+    length = models.FloatField(blank=True, null=True)
+    xCoordinate = models.FloatField(blank=True, null=True)
+    yCoordinate = models.FloatField(blank=True, null=True)
+    tag_text = models.ForeignKey(TagText)
