@@ -35,10 +35,10 @@ urlpatterns = [
    	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api-token-auth/', obtain_jwt_token),
     # For API documentation(DRF)
-    url(r'^docs/', include('rest_framework_docs.urls')),
+    # url(r'^docs/', include('rest_framework_docs.urls')),
     # url(r'^api/', include('api.urls', namespace="documentation")),
 
-    
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_URL)
 
 # I added this route to catch any failing routes, this is a hack
