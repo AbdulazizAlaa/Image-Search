@@ -229,4 +229,11 @@ class getTextTag(APIView):
 
 class MyPhotosFolder(APIView):
 	def get(self, request):
-		
+		user = request.user.username
+		# imageOwner = request.data.get("uploaded_by")
+
+		# if imageOwner=user :
+		# 	image = request.data.get("image")
+		queryset = Image.objects.filter(uploaded_by=user)
+		return Response(queryset)
+
