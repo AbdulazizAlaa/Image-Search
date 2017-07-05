@@ -3,7 +3,8 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
 from image.serializers import (ImageRetrieveSerializer, ImageUploadSerializer,
-                                TagSerializer, TagTextSerializer, TagUsernameSerializer, TagUsernameRectangleSerializer)
+                                TagSerializer, TagTextSerializer, TagUsernameSerializer,
+                                TagUsernameRectangleSerializer, TagTextRectangleSerializer)
 from rest_framework.views import APIView
 from rest_framework import generics
 from image.models import Image, Tag, TagText, TagUsername
@@ -197,52 +198,57 @@ class AddTag(APIView):
                 print("duplicate")
                 pass
             print ('tags saved')
-        if(serializer_text_tag.is_valid()):
-            serializer_text_tag.save()
-            print ('tags text saved')
-        if(serializer_username_tag.is_valid()):
-            serializer_username_tag.save()
-            print ('tags username saved')
+            if(serializer_text_tag.is_valid()):
+                serializer_text_tag.save()
+                print ('tags text saved')
+            if(serializer_username_tag.is_valid()):
+                serializer_username_tag.save()
+                print ('tags username saved')
 
-        id_username = serializer_username_tag.data['id']
-        id_text = serializer_text_tag.data['id']
+            id_username = serializer_username_tag.data['id']
+            id_text = serializer_text_tag.data['id']
 
-        rect = []
-        # Save rectangles of the tags of username
-        for obj in enumerate(username_tag):
-            temp = {'width': obj[1]['width'],
-                    'length': obj[1]['length'],
-                    'xCoordinate': obj[1]['xCoordinate'],
-                    'yCoordinate': obj[1]['yCoordinate'],
-                    'tag_username': id_username}
-            rect.append(temp)
-        # print (rect)
-        ser = TagUsernameRectangleSerializer(data=rect, many=True)
-        if (ser.is_valid()):
-            print ('heeeh')
-            # print (ser.data)
+            rect = []
+            # Save rectangles of the tags of username
+            for obj in enumerate(username_tag):
+                temp = {'width': obj[1]['width'],
+                        'length': obj[1]['length'],
+                        'xCoordinate': obj[1]['xCoordinate'],
+                        'yCoordinate': obj[1]['yCoordinate'],
+                        'tag_username': id_username}
+                rect.append(temp)
+            # print (rect)
+            ser = TagUsernameRectangleSerializer(data=rect, many=True)
+            if (ser.is_valid()):
+                print ('heeeh')
+                # print (ser.data)
+            else:
+                print (':(((')
+
+            rect1 = []
+            # Save rectangles of the tags of texts
+            for obj in enumerate(text_tag):
+                temp = {'width': obj[1]['width'],
+                        'length': obj[1]['length'],
+                        'xCoordinate': obj[1]['xCoordinate'],
+                        'yCoordinate': obj[1]['yCoordinate'],
+                        'tag_text': id_text}
+                rect1.append(temp)
+            ser = TagTextRectangleSerializer(data=rect1, many=True)
+            if (ser.is_valid()):
+                print ('heeeh tany')
+                # print (ser.data)
+            else:
+                print (':((( tany')
+                # print (ser.errors)
+
+            # print (rect1)
+            return Response({'status': 1})
         else:
-            print (':(((')
-
-        rect1 = []
-        # Save rectangles of the tags of texts
-        for obj in enumerate(text_tag):
-            temp = {'width': obj[1]['width'],
-                    'length': obj[1]['length'],
-                    'xCoordinate': obj[1]['xCoordinate'],
-                    'yCoordinate': obj[1]['yCoordinate'],
-                    'tag_text': id_text}
-            rect1.append(temp)
-        ser = TagUsernameRectangleSerializer(data=rect1, many=True)
-        if (ser.is_valid()):
-            print ('heeeh')
-            # print (ser.data)
-        else:
-            print (':(((')
-
-        # print (rect1)
-            # print (ser.errors)
-        return Response()
+            return Response({'status': -1,
+                            'username errors': serializer_username_tag.errors,
+                            'text errors': serializer_text_tag.errors
+                            })
 
 
 class getUsername(APIView):
