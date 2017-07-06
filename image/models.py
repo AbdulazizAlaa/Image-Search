@@ -48,7 +48,9 @@ class TagUsername(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return '{}'.format(self.tag)
+        tag1 = ", ".join(str(seg) for seg in self.tag.all())
+        print (tag1)
+        return (self.user)
 
 
 class TagUsernameRectangle(models.Model):

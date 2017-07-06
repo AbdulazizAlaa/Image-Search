@@ -276,35 +276,49 @@ class MyPhotosFolder(APIView):
 
     def get(self, request):
         user_id = request.user.id
-        query = TagText.objects.filter(user=user_id)
+        # text tags:
+        q = TagText.objects.filter(user=user_id).values_list('tag__tag', 'image__image', 'image__id')
+        print (len(q))
+        tags = []
+        for i in enumerate(q):
+            tags.append(i[1][0])
+        tags = set(tags)
+        print (tags)
+        res = []
+        # for i in tags:
+        #     for j in q:
+        #         if(i==j[0]):
+        #             temp = []
+        #             temp.append(j[1])
+        #             res.append({i: temp})
+        temp = []
+        for i in range(len(tags)):
+            if (tags==q[i][0]):
+                temp.append(q[i][1])
+                res.append({tags: temp})
+        print (res)
+        # query = Image.objects.filter(uploaded_by=user_id)
+        # # images = TagText.objects.filter(image__image=query)
         # print (query)
-        print (type(query.values('tag__tag')))
-        for q in range(len(query)):
-            for i in query.values('tag__tag')[q]:
-                # print (q)
-                print (i.values)
-                print (i)
-        results = []
-        for q in query:
-            results.append({'text_tag': query.values('tag__tag')})
-                            # 'image': query.image})
-            # print (query.values('tag__tag'))
-            # print (q.image)
-        print (results)
         # print (images)
-        # t = TagText.objects.filter(image__image=images[0])
-        # tags = []
-        # for i in range(images.count()):
-        #     tags.append(TagText.objects.filter(image__image=images[i]))
-        # print (tags)
-
-        images_url = []
-
-        # for image in images:
-        #     images_url.append(image.image.url)
-        # # print (images_url)
-
-        return Response({"images": images_url})
+        # for i in range(len(query)):
+        # print (query.values('tag__tag'))
+        # print (query.values('image__image'))
+        # x = []
+        # for q in range(len(query)):
+        #     for i, j in zip(query.values('tag__tag'), query.values('image__image')):
+        #         x.append({'tag': i['tag__tag'], 'image': j['image__image']})
+        # # username tags85
+        # query = TagUsername.objects.filter(user=user_id)
+        # y = []
+        # for q in range(len(query)):
+        #     for i, j in zip(query.values('tag__username'), query.values('image__image')):
+        #         # print (i['tag__username'])
+        #         # print (j['image__image'])
+        #         # print (j)
+        #         y.append({'tag': i['tag__username'], 'image': j['image__image']})
+        # # print (x)
+        # return Response({'tag_text': x})
 
 class photosOfMe(APIView):
     def get(self,request):
