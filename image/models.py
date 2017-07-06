@@ -33,26 +33,17 @@ class TagText(models.Model):
     # the tag is a text
     tag = models.ManyToManyField(Tag, related_name='tag_text')
     image = models.ForeignKey(Image)
-
-    # # Detection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField(blank=True, null=True)
-    length = models.FloatField(blank=True, null=True)
-    xCoordinate = models.FloatField(blank=True, null=True)
-    yCoordinate = models.FloatField(blank=True, null=True)
-
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return '{}'.format(self.tag)
+    # def __str__(self):
+    #     return '{}'.format(self.tag)
 
 
 class TagUsername(models.Model):
     # the tag is person
     tag = models.ManyToManyField(User, related_name='tag_username')
     image = models.ForeignKey(Image)
-
-
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

@@ -38,27 +38,27 @@ class ImageUpload(APIView):
             print (serializer.data)
 
 
-            image_file = serializer.data['image']
+            # image_file = serializer.data['image']
 
-            image_data = cv2.imread(image_file)
+            # image_data = cv2.imread(image_file)
 
-            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                              'face_recognition': 'facenet',
-                                              'object_detection_recognition': 'inception'})
+            # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+            #                                   'face_recognition': 'facenet',
+            #                                   'object_detection_recognition': 'inception'})
 
-            results = engine.processImage(image_data)
+            # results = engine.processImage(image_data)
 
-            objects = results['objects']
+            # objects = results['objects']
             # caption = results['captions']
-            print (objects)
-            for i in objects:
-                tag_serializer = TagSerializer(data={'tag': i})
-                # print ("hi")
-                if(tag_serializer.is_valid()):
-                    # print ("hadeer")
-                    tag_serializer.save()
-                else:
-                    print (tag_serializer.errors)
+            # print (objects)
+            # for i in objects:
+            #     tag_serializer = TagSerializer(data={'tag': i})
+            #     # print ("hi")
+            #     if(tag_serializer.is_valid()):
+            #         # print ("hadeer")
+            #         tag_serializer.save()
+            #     else:
+            #         print (tag_serializer.errors)
 
             text = {'status': 1, 'image': serializer.data}
             return Response(text)
@@ -272,29 +272,50 @@ class getTextTag(APIView):
 		return Response(text)
 
 class MyPhotosFolder(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request):
         user_id = request.user.id
-        # imageOwner = request.data.get("uploaded_by")
-
-        # if imageOwner=user :
-        # 	image = request.data.get("image")
-        images = Image.objects.filter(uploaded_by=user_id)
+        query = TagText.objects.filter(user=user_id)
+        # print (query)
+        print (type(query.values('tag__tag')))
+        for q in range(len(query)):
+            for i in query.values('tag__tag')[q]:
+                # print (q)
+                print (i.values)
+                print (i)
+        results = []
+        for q in query:
+            results.append({'text_tag': query.values('tag__tag')})
+                            # 'image': query.image})
+            # print (query.values('tag__tag'))
+            # print (q.image)
+        print (results)
+        # print (images)
+        # t = TagText.objects.filter(image__image=images[0])
+        # tags = []
+        # for i in range(images.count()):
+        #     tags.append(TagText.objects.filter(image__image=images[i]))
+        # print (tags)
 
         images_url = []
 
-        for image in images:
-        	images_url.append(Image.image.url)
+        # for image in images:
+        #     images_url.append(image.image.url)
+        # # print (images_url)
 
-        return Response(image.image.url)
+        return Response({"images": images_url})
 
 class photosOfMe(APIView):
     def get(self,request):
         username = request.user.username
         images = TagUsername.objects.filter(tag=username)
+        # Join query
+        images = Image.objects.filter(tagusername__tag=user_id)
 
         images_url = []
 
         for image in images:
-            images_url.append(image.image.url)
+            images_url.append(image.url)
 
         return Response(images_url)
