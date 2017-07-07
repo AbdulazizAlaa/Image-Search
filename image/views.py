@@ -7,7 +7,7 @@ from image.serializers import (ImageRetrieveSerializer, ImageUploadSerializer,
                                 TagUsernameRectangleSerializer, TagTextRectangleSerializer)
 from rest_framework.views import APIView
 from rest_framework import generics
-from image.models import Image, Tag, TagText, TagUsername
+from image.models import Image, Tag, TagText, TagUsername, TagTextRectangle, TagUsernameRectangle
 from app import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
@@ -283,23 +283,31 @@ class MyPhotosFolder(APIView):
         user_id = request.user.id
         # text tags:
         q = TagText.objects.filter(user=user_id).values_list('tag__tag', 'image__image', 'tag__id')
-        print ((q))
+        print (q)
+        rect = TagTextRectangle.objects.filter(tag_text=q[0][2]).values_list('width',
+                                                                            'length',
+                                                                            'xCoordinate',
+                                                                            'yCoordinate',
+                                                                            'tag_text__tag__tag',
+                                                                            'tag_text__id',
+                                                                            'tag_text__image__image')
+        # inst = TagText.objects.filter(pk=rect[0][2]).values_list('tag__tag')
+        print (rect)
+        # print (inst)
+        l = rect[0::3]
+        print (l)
         albums = {}
-        for i in q:
-            tag = i[0]
-            image_url = i[1]
+        for i in l:
+            tag = i[4]
+            image_url = i[6]
             print(tag)
             print(image_url)
             if tag not in albums:
-            # if not hasattr(albums, tag):
-                # print("no")
                 albums[tag] = []
-            albums[tag].append(image_url)
-            # print(albums[tag])
-            # print (i)
-            # print (i[0])
-            # tags.append(i[1][0])
+                temp = {'image': image_url,'width': i[0],'length': i[1],'x': i[2],'y': i[3]}
+            albums[tag].append(temp)
         print (albums)
+        return Response(albums)
 
 
         
