@@ -65,9 +65,10 @@ class ImageUpload(APIView):
             print('caption', caption)
 
             # saving tags and linking them to image
-            tag_text_obj = TagText.objects.create(image=image_obj, user=user_obj)
-
             for tag_str in objects:
+                # tag text object creation
+                tag_text_obj = TagText.objects.create(image=image_obj, user=user_obj)
+                # tag object creation
                 tag_serializer = TagSerializer(data={'tag': tag_str})
                 if(tag_serializer.is_valid()):
                     try:
@@ -221,79 +222,79 @@ class AddTag(APIView):
         # Get username by adding the token in header:
         # Authorization: JWT token
         user = request.user.username
+        user_obj = request.user
         text_tag = request.data.get("tag_text")
         username_tag = request.data.get("tag_username")
-        image = request.data.get("image")
-        jsonText_TagText = {'image': image,
-                            'tag': text_tag,
-                            'user': user}
+        image_id = request.data.get("image")
+        try:
+            image_obj = Image.objects.get(id=image_id)
+        except:
+            return Response({'status':-1, 'data':'Image Not Found'})
 
-        jsonText_TagUsername = {'image': image,
-                                "tag": username_tag,
-                                'user': user}
-        tagArray = []
-        for obj in enumerate(text_tag):
-            tagArray.append({'tag': obj[1]['tag']})
-        # print (tagArray)
+        # # creating engine instance
+        # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+        #                                     'face_recognition': 'facenet',
+        #                                     'object_detection_recognition': False,
+        #                                     'captions_generation_engine': False})
 
-        serializer_tag = TagSerializer(data=tagArray, many=True)
-        # print (serializer_tag.is_valid())
-        serializer_text_tag = TagTextSerializer(data=jsonText_TagText)
-        serializer_username_tag = TagUsernameSerializer(data=jsonText_TagUsername)
+        # # is used after Successfully tagging image by user so it can be used for training
+        # engine.store_face_training_data(img, [{'name': 'aziz', 'x': 424, 'h': 393, 'y': 188, 'w': 313}], "aziz.jpg")
 
-        if(serializer_tag.is_valid()):
+
+        # TAG TEXT
+        # saving tags and linking them to image
+        for tag_obj_str in text_tag:
+            tag_text_obj = TagText.objects.create(image=image_obj,
+                                                user=user_obj,
+                                                length=tag_obj_str['length'],
+                                                width=tag_obj_str['width'],
+                                                yCoordinate=tag_obj_str['yCoordinate'],
+                                                xCoordinate=tag_obj_str['xCoordinate'])
+            tag_serializer = TagSerializer(data={'tag': tag_obj_str['tag']})
+            if(tag_serializer.is_valid()):
+                try:
+                    tag_serializer.save()
+                except Exception as ex:
+                    # tag is already saved
+                    # print('-------------')
+                    # print ("exception: ")
+                    # print(ex)
+                    pass
+
+            # getting the tag object and then associate with image
             try:
-                serializer_tag.save()
-            except:
-                print("duplicate")
+                # getting the tag object
+                tag_obj = Tag.objects.filter(tag=tag_obj_str['tag']).first()
+                # print('-------------')
+                # print('object')
+                # print(tag_obj)
+                # adding the tag to image
+                tag_text_obj.tag.add(tag_obj)
+            except Tag.DoesNotExist:
+                print ("Tag does not exist")
                 pass
-            print ('tags saved')
-        if(serializer_text_tag.is_valid()):
-            serializer_text_tag.save()
-            print ('tags text saved')
-        if(serializer_username_tag.is_valid()):
-            serializer_username_tag.save()
-            print ('tags username saved')
 
-        id_username = serializer_username_tag.data['id']
-        id_text = serializer_text_tag.data['id']
+        # TAG username
+        # saving tags and linking them to image
+        for tag_obj_str in username_tag:
+            tag_username_obj = TagUsername.objects.create(image=image_obj,
+                                                        user=user_obj,
+                                                        length=tag_obj_str['length'],
+                                                        width=tag_obj_str['width'],
+                                                        yCoordinate=tag_obj_str['yCoordinate'],
+                                                        xCoordinate=tag_obj_str['xCoordinate'])
 
-        rect = []
-        # Save rectangles of the tags of username
-        for obj in enumerate(username_tag):
-            temp = {'width': obj[1]['width'],
-                    'length': obj[1]['length'],
-                    'xCoordinate': obj[1]['xCoordinate'],
-                    'yCoordinate': obj[1]['yCoordinate'],
-                    'tag_username': id_username}
-            rect.append(temp)
-        # print (rect)
-        ser = TagUsernameRectangleSerializer(data=rect, many=True)
-        if (ser.is_valid()):
-            print ('heeeh')
-            # print (ser.data)
-        else:
-            print (':(((')
+            # getting the tag object and then associate with image
+            try:
+                tagged_user = User.objects.get(username=tag_obj_str['username'])
 
-        rect1 = []
-        # Save rectangles of the tags of texts
-        for obj in enumerate(text_tag):
-            temp = {'width': obj[1]['width'],
-                    'length': obj[1]['length'],
-                    'xCoordinate': obj[1]['xCoordinate'],
-                    'yCoordinate': obj[1]['yCoordinate'],
-                    'tag_text': id_text}
-            rect1.append(temp)
-        ser = TagUsernameRectangleSerializer(data=rect1, many=True)
-        if (ser.is_valid()):
-            print ('heeeh')
-            # print (ser.data)
-        else:
-            print (':(((')
+                # adding the tag to image
+                tag_username_obj.tag.add(tagged_user)
+            except:
+                print ("user does not exist")
+                pass
 
-        # print (rect1)
-            # print (ser.errors)
-        return Response()
+        return Response({'status':1})
 
 
 class getUsername(APIView):
