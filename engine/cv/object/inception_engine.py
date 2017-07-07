@@ -132,7 +132,7 @@ class InceptionEngine(ObjectRecognitionInterface):
                 if(score > self.__threshold):
                     human_string = node_lookup.id_to_string(node_id)
                     for obj in human_string.split(','):
-                        objects.append(obj)
+                        objects.append(obj.strip())
                     print('%s (score = %.5f)' % (human_string, score))
 
             return objects
