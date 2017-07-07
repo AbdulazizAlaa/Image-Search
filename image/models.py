@@ -36,8 +36,8 @@ class TagText(models.Model):
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    # def __str__(self):
-    #     return '{}'.format(self.tag)
+    def __str__(self):
+        return '{}'.format(self.tag)
 
 
 class TagUsername(models.Model):
@@ -47,10 +47,12 @@ class TagUsername(models.Model):
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    # def __str__(self):
+    #     tag1 = ", ".join(str(seg) for seg in self.tag.all())
+    #     print (tag1)
+    #     return (self.user)
     def __str__(self):
-        tag1 = ", ".join(str(seg) for seg in self.tag.all())
-        print (tag1)
-        return (self.user)
+        return '{}'.format(self.tag)
 
 
 class TagUsernameRectangle(models.Model):

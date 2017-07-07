@@ -92,10 +92,6 @@ class TagUsernameSerializer(serializers.ModelSerializer):
         fields = ('id', 'tag', 'user', 'image',)
 
     def create(self, validated_data):
-        # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
-        # print tag_username
-        # print (validated_data)
-        # print (validated_data['tag'])
         image = Image.objects.get(id=validated_data['image_id'])
         t = TagUsername.objects.create(image=image,
             user=validated_data['user'])
@@ -116,6 +112,18 @@ class TagUsernameRectangleSerializer(serializers.ModelSerializer):
     class Meta:
         model = TagUsernameRectangle
         fields = ('__all__')
+
+    def create(self, validated_data):
+        # print (validated_data['tag_username']['id'])
+        rect_inst = TagUsername.objects.get(pk=validated_data['tag_username']['id'])
+        tag = validated_data.pop('tag_username')
+        # print (tag['id'])
+        validated_data.update({'tag_username_id': tag['id']})
+        # print ((validated_data))
+        # print (type(rect_inst))
+        inst = TagUsernameRectangle.objects.create(**validated_data)
+        return inst
+
     
 
 class TagTextRectangleSerializer(serializers.ModelSerializer):
@@ -125,4 +133,16 @@ class TagTextRectangleSerializer(serializers.ModelSerializer):
         model = TagTextRectangle
         fields = ('__all__')
     
+    def create(self, validated_data):
+        print (validated_data)
+        rect_inst = TagText.objects.get(pk=validated_data['tag_text']['id'])
+        # print (rect_inst)
+        tag = validated_data.pop('tag_text')
+        print (tag)
+        # print (tag['id'])
+        validated_data.update({'tag_text_id': tag['id']})
+        print ((validated_data))
+        # print (type(rect_inst))
+        inst = TagTextRectangle.objects.create(**validated_data)
+        return inst
 

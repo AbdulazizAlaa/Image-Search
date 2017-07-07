@@ -201,9 +201,11 @@ class AddTag(APIView):
             if(serializer_text_tag.is_valid()):
                 serializer_text_tag.save()
                 print ('tags text saved')
+                print (serializer_text_tag.data)
             if(serializer_username_tag.is_valid()):
                 serializer_username_tag.save()
                 print ('tags username saved')
+                print (serializer_username_tag.data)
 
             id_username = serializer_username_tag.data['id']
             id_text = serializer_text_tag.data['id']
@@ -221,6 +223,7 @@ class AddTag(APIView):
             ser = TagUsernameRectangleSerializer(data=rect, many=True)
             if (ser.is_valid()):
                 print ('heeeh')
+                ser.save()
                 # print (ser.data)
             else:
                 print (':(((')
@@ -234,13 +237,15 @@ class AddTag(APIView):
                         'yCoordinate': obj[1]['yCoordinate'],
                         'tag_text': id_text}
                 rect1.append(temp)
-            ser = TagTextRectangleSerializer(data=rect1, many=True)
-            if (ser.is_valid()):
+            print (rect1)
+            ser1 = TagTextRectangleSerializer(data=rect1, many=True)
+            if (ser1.is_valid()):
                 print ('heeeh tany')
-                # print (ser.data)
+                print (ser1.data)
+                ser1.save()
             else:
                 print (':((( tany')
-                # print (ser.errors)
+                print (ser.errors)
 
             # print (rect1)
             return Response({'status': 1})
@@ -277,47 +282,27 @@ class MyPhotosFolder(APIView):
     def get(self, request):
         user_id = request.user.id
         # text tags:
-        q = TagText.objects.filter(user=user_id).values_list('tag__tag', 'image__image', 'image__id')
-        print (len(q))
-        tags = []
-        for i in enumerate(q):
-            tags.append(i[1][0])
-        tags = set(tags)
-        print (tags)
-        res = []
-        # for i in tags:
-        #     for j in q:
-        #         if(i==j[0]):
-        #             temp = []
-        #             temp.append(j[1])
-        #             res.append({i: temp})
-        temp = []
-        for i in range(len(tags)):
-            if (tags==q[i][0]):
-                temp.append(q[i][1])
-                res.append({tags: temp})
-        print (res)
-        # query = Image.objects.filter(uploaded_by=user_id)
-        # # images = TagText.objects.filter(image__image=query)
-        # print (query)
-        # print (images)
-        # for i in range(len(query)):
-        # print (query.values('tag__tag'))
-        # print (query.values('image__image'))
-        # x = []
-        # for q in range(len(query)):
-        #     for i, j in zip(query.values('tag__tag'), query.values('image__image')):
-        #         x.append({'tag': i['tag__tag'], 'image': j['image__image']})
-        # # username tags85
-        # query = TagUsername.objects.filter(user=user_id)
-        # y = []
-        # for q in range(len(query)):
-        #     for i, j in zip(query.values('tag__username'), query.values('image__image')):
-        #         # print (i['tag__username'])
-        #         # print (j['image__image'])
-        #         # print (j)
-        #         y.append({'tag': i['tag__username'], 'image': j['image__image']})
-        # # print (x)
+        q = TagText.objects.filter(user=user_id).values_list('tag__tag', 'image__image', 'tag__id')
+        print ((q))
+        albums = {}
+        for i in q:
+            tag = i[0]
+            image_url = i[1]
+            print(tag)
+            print(image_url)
+            if tag not in albums:
+            # if not hasattr(albums, tag):
+                # print("no")
+                albums[tag] = []
+            albums[tag].append(image_url)
+            # print(albums[tag])
+            # print (i)
+            # print (i[0])
+            # tags.append(i[1][0])
+        print (albums)
+
+
+        
         # return Response({'tag_text': x})
 
 class photosOfMe(APIView):
