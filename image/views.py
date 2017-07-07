@@ -30,36 +30,87 @@ class ImageUpload(APIView):
         print(request.data)
         image = request.data.get('image')
         uploaded_by = request.user.username
-        myjson = {'image': image, 'uploaded_by': uploaded_by, 'caption': 'caption'}
+        user_obj = request.user
+
+        myjson = {'image': image, 'uploaded_by': uploaded_by}
+
         serializer = ImageUploadSerializer(data=myjson)
         if serializer.is_valid():
             serializer.save()
-            print (serializer.data)
 
+            serializer_obj = serializer.data
+            print (serializer_obj)
 
-            image_file = serializer.data['image']
+            image_file = serializer_obj['image']
+
+            image_obj = Image.objects.get(id=serializer_obj['id'])
 
             image_data = cv2.imread(image_file)
 
             engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                              'face_recognition': 'facenet',
-                                              'object_detection_recognition': 'inception'})
+                                                'face_recognition': 'facenet',
+                                                'object_detection_recognition': 'inception',
+                                                'captions_generation_engine': True})
 
             results = engine.processImage(image_data)
 
             objects = results['objects']
-            # caption = results['captions']
-            print (objects)
-            for i in objects:
-                tag_serializer = TagSerializer(data={'tag': i})
-                # print ("hi")
-                if(tag_serializer.is_valid()):
-                    # print ("hadeer")
-                    tag_serializer.save()
-                else:
-                    print (tag_serializer.errors)
+            faces = results['faces']
+            caption = results['captions']
 
-            text = {'status': 1, 'image': serializer.data}
+            # objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
+            # caption = "random caption for random image"
+            print ('objects', objects)
+            print('faces', faces)
+            print('caption', caption)
+
+            # saving tags and linking them to image
+            tag_text_obj = TagText.objects.create(image=image_obj, user=user_obj)
+
+            for tag_str in objects:
+                tag_serializer = TagSerializer(data={'tag': tag_str})
+                if(tag_serializer.is_valid()):
+                    try:
+                        tag_serializer.save()
+                    except:
+                        # tag is already saved
+                        # print('-------------')
+                        # print ("exception: ")
+                        pass
+
+                # getting the tag object and then associate with image
+                try:
+                    # getting the tag object
+                    tag_obj = Tag.objects.filter(tag=tag_str).first()
+                    # print('-------------')
+                    # print('object')
+                    # print(tag_obj)
+                    # adding the tag to image
+                    tag_text_obj.tag.add(tag_obj)
+                except Tag.DoesNotExist:
+                    print ("NO")
+                    pass
+
+            # adding caption to image object
+            image_obj_temp = {'caption': caption}
+            serializer_temp = ImageUploadSerializer(image_obj, data=image_obj_temp, partial=True)
+            if serializer_temp.is_valid():
+                serializer_temp.save()
+
+                serializer_obj_temp = serializer_temp.data
+                print (serializer_obj_temp)
+
+            image_obj = Image.objects.get(id=serializer_obj['id'])
+
+            result = {'image_id': serializer_obj['id'],
+                    'url': image_obj.image.url,
+                    'caption': caption,
+                    'objects': objects,
+                    'faces': faces}
+
+            print('image', result)
+
+            text = {'status': 1, 'image': result}
             return Response(text)
         else:
             text = {'status': -1, 'image': serializer.errors}
@@ -176,7 +227,7 @@ class AddTag(APIView):
         jsonText_TagText = {'image': image,
                             'tag': text_tag,
                             'user': user}
-                            
+
         jsonText_TagUsername = {'image': image,
                                 "tag": username_tag,
                                 'user': user}
@@ -208,7 +259,7 @@ class AddTag(APIView):
         id_text = serializer_text_tag.data['id']
 
         rect = []
-        # Save rectangles of the tags of username 
+        # Save rectangles of the tags of username
         for obj in enumerate(username_tag):
             temp = {'width': obj[1]['width'],
                     'length': obj[1]['length'],
@@ -225,7 +276,7 @@ class AddTag(APIView):
             print (':(((')
 
         rect1 = []
-        # Save rectangles of the tags of texts 
+        # Save rectangles of the tags of texts
         for obj in enumerate(text_tag):
             temp = {'width': obj[1]['width'],
                     'length': obj[1]['length'],
@@ -239,7 +290,7 @@ class AddTag(APIView):
             # print (ser.data)
         else:
             print (':(((')
-        
+
         # print (rect1)
             # print (ser.errors)
         return Response()
@@ -259,12 +310,12 @@ class getTextTag(APIView):
 	def get(self, request):
 		q = request.GET.get("q")
 		search = Tag.objects.filter(tag__icontains=q).values_list('tag', flat=True).distinct()
-		print search
-		
+		print (search)
+
 		text = {'results': list(search)}
-		print text
+		print (text)
 		return Response(text)
 
 class MyPhotosFolder(APIView):
-	def get(self, request):
-		
+    def get(self, request):
+        return

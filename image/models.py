@@ -25,7 +25,7 @@ def my_upload_to(instance, filename):
 class Image(models.Model):
     uploaded_by = models.ForeignKey(User, related_name='uploaded_by', on_delete=models.PROTECT)
     image = models.ImageField(upload_to=my_upload_to)
-    caption = models.TextField()
+    caption = models.TextField(blank=True)
     def __unicode__(self):
         return os.path.basename(self.image.name)
 
@@ -53,7 +53,7 @@ class TagUsername(models.Model):
     tag = models.ManyToManyField(User, related_name='tag_username')
     image = models.ForeignKey(Image)
 
-    
+
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
