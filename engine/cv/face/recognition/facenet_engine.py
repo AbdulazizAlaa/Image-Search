@@ -11,11 +11,13 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 import tensorflow as tf
+from tensorflow.python.framework import ops
 import numpy as np
 import os
 import sys
 import math
 import pickle
+import cv2
 
 
 class FacenetEngine(FaceRecognitionInterface):
@@ -92,12 +94,23 @@ class FacenetEngine(FaceRecognitionInterface):
                     paths_batch = paths[start_index:end_index]
                     labels_batch = labels[start_index:end_index]
 
-                    # images_list = facenet.load_data(paths_batch, False, False, self.__image_size)
-                    images_batch, labels_batch = facenet.read_and_augment_data(paths_batch, labels_batch,
-                            self.__image_size, self.__batch_size, 20, True, True, True, 10, shuffle=True)
+                    images_list = facenet.load_data(paths_batch, False, False, self.__image_size)
 
-                    augmented_labels.append(labels_batch)
-
+                    # image_1 = images_list[0]
+                    #
+                    # images_aug = self.data_augment(images).eval()
+                    #
+                    # image_1_aug = images_list[0]
+                    #
+                    print (images_list)
+                    print('hiiii')
+                    print('byeee')
+                    # cv2.imshow('real', image_1)
+                    # cv2.imshow('aug', image_1_aug)
+                    # cv2.waitKey(0)
+                    # augmented_labels.append(labels_batch)
+                    # print (augmented_labels)
+                    break
                     feed_dict = { images_placeholder:images_batch, phase_train_placeholder:False }
                     emb_array[start_index:end_index,:] = sess.run(embeddings, feed_dict=feed_dict)
 
@@ -117,6 +130,17 @@ class FacenetEngine(FaceRecognitionInterface):
                 # with open(classifier_filename_exp, 'wb') as outfile:
                 #     pickle.dump((self.__classifier, class_names), outfile)
                 # print('Saved classifier model to file "%s"' % classifier_filename_exp)
+
+
+    def prep_data_augment(self, image):
+        image = tf.image.random_flip_left_right(image)
+        image = tf.image.random_brightness(image, max_delta=63/255.0)
+        image = tf.image.random_contrast(image, lower=0.2, upper=1.8)
+        return image
+
+    def data_augment(self, input_tensor):
+        output_tensor = tf.map_fn(self.prep_data_augment, input_tensor, parallel_iterations=10)
+        return output_tensor
 
     def predict_proba(self, imgs):
         if(len(imgs) == 0):
