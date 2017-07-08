@@ -3,18 +3,15 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
 from image.serializers import (ImageRetrieveSerializer, ImageUploadSerializer,
-                                TagSerializer, TagTextSerializer, TagUsernameSerializer,
-                                TagUsernameRectangleSerializer, TagTextRectangleSerializer)
+                                TagSerializer, TagTextSerializer, TagUsernameSerializer)
 from rest_framework.views import APIView
 from rest_framework import generics
-from image.models import Image, Tag, TagText, TagUsername, TagTextRectangle, TagUsernameRectangle
+from image.models import Image, Tag, TagText, TagUsername
 from app import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 # from engine.nlp.ner import NER
 # from engine.nlp.aner import ANER
-# from engine.cv.face import opencv_engine
-# import numpy as np, cv2, os
 from rest_framework import permissions
 from langdetect import detect
 
@@ -352,7 +349,7 @@ class MyPhotosFolder(APIView):
         return Response(albums)
 
 
-        
+
         # return Response({'tag_text': x})
 
 class photosOfMe(APIView):
