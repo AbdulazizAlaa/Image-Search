@@ -10,10 +10,10 @@ from image.models import Image, Tag, TagText, TagUsername
 from app import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+import re
 # from engine.nlp.ner import NER
 # from engine.nlp.aner import ANER
 from rest_framework import permissions
-from langdetect import detect
 
 from engine.cv.vision import vision_engine
 
@@ -123,13 +123,14 @@ class RenderImage(APIView):
     def get(self, request, format=None):
 
         text = request.GET.get("q")
-        if(type(text) == unicode):
-            text = text.encode("ascii", "ignore")
-
+        
         language = ""
-        try:
-            language = detect(text)
-        except UnicodeDecodeError:
+
+        eng_matches = re.findall(pattern="([a-z]|[A-Z]|[0-9])", string=text)
+
+        if(len(eng_matches) > 0.5 * len(text)):
+            language = "en"
+        else:
             language = "ar"
 
         # Params of the serializer
@@ -148,6 +149,7 @@ class RenderImage(APIView):
 
             for tag in Tags:
                 params.append({'tag': tag})
+        
         # Serialize input data
         serializer = ImageRetrieveSerializer(data={'Tags': params})
 
@@ -162,29 +164,30 @@ class RenderImage(APIView):
 
             # For each Tag, get all images it is in
             # And append their URLs to the output
-            for tag in Tags:
-                # Get return image instance
-                tag_models = Tag.objects.filter(tag=tag)
+            # for tag in Tags:
+            #     # Get return image instance
+            #     tag_models = Tag.objects.filter(tag=tag)
 
-                # For each model, get its images' URLs
-                for tag_model in tag_models:
-                    if len(tag_model.Images.all()) == 0:
-                        continue
+            #     # For each model, get its images' URLs
+            #     for tag_model in tag_models:
+            #         if len(tag_model.Images.all()) == 0:
+            #             continue
 
-                    if not os.path.exists('media/images/tmp'):
-                        os.mkdir('media/images/tmp')
-                    # opencv_engine decleration
-                    f = opencv_engine.OpenCVFaceEngine("engine")
+            #         if not os.path.exists('media/images/tmp'):
+            #             os.mkdir('media/images/tmp')
+            #         # opencv_engine decleration
+            #         f = opencv_engine.OpenCVFaceEngine("engine")
 
-                    # For each image call the face detection module
-                    for image in tag_model.Images.all():
-                        filename = image.image.url.split('/')[2]
-                        img = cv2.imread(image.image.url, 1)  # change this with any other image on your computer
-                        [img, faces, faces_rects] = f.crop_faces(img)
+            #         # For each image call the face detection module
+            #         for image in tag_model.Images.all():
+            #             filename = image.image.url.split('/')[2]
+            #             img = cv2.imread(image.image.url, 1)  # change this with any other image on your computer
+            #             [img, faces, faces_rects] = f.crop_faces(img)
 
-                        cv2.imwrite('media/images/tmp/' + filename, img)
-                        output.append('/media/images/tmp/' + filename)
+            #             cv2.imwrite('media/images/tmp/' + filename, img)
+            #             output.append('/media/images/tmp/' + filename)
 
+            
                     # # For each image in the tag model
                     # for image in tag_model.Images.all():
                     #   output.append("/" + str(image.image.url))
@@ -349,9 +352,6 @@ class MyPhotosFolder(APIView):
         return Response(albums)
 
 
-
-        # return Response({'tag_text': x})
-
 class photosOfMe(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -380,3 +380,8 @@ class photosOfMe(APIView):
             albums[tag].append(temp)
         # print (albums)
         return Response(albums)
+		print(search)
+		
+		text = {'results': list(search)}
+		print(text)
+		return Response(text)

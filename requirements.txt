@@ -9,6 +9,5 @@ pycorenlp
 pillow
 keras
 fasttext
-langdetect
 django-rest-swagger
 django-rest-framework-docs
