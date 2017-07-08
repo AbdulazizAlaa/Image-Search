@@ -45,19 +45,20 @@ class ImageUpload(APIView):
 
             image_data = cv2.imread(image_file)
 
-            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                                'face_recognition': 'facenet',
-                                                'object_detection_recognition': 'inception',
-                                                'captions_generation_engine': True})
+            # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+            #                                     'face_recognition': 'facenet',
+            #                                     'object_detection_recognition': 'inception',
+            #                                     'captions_generation_engine': True})
 
-            results = engine.processImage(image_data)
+            # results = engine.processImage(image_data)
 
-            objects = results['objects']
-            faces = results['faces']
-            caption = results['captions']
+            # objects = results['objects']
+            # faces = results['faces']
+            # caption = results['captions']
 
-            # objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
-            # caption = "random caption for random image"
+            objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
+            caption = "random caption for random image"
+            faces = {}
             print ('objects', objects)
             print('faces', faces)
             print('caption', caption)
@@ -321,29 +322,28 @@ class MyPhotosFolder(APIView):
     def get(self, request):
         user_id = request.user.id
         # text tags:
-        q = TagText.objects.filter(user=user_id).values_list('tag__tag', 'image__image', 'tag__id')
+        q = TagText.objects.filter(user=user_id).values_list('tag__tag',
+                                                            'image__image',
+                                                            'tag__id',
+                                                            'width',
+                                                            'length',
+                                                            'xCoordinate',
+                                                            'yCoordinate')
         print (q)
-        rect = TagTextRectangle.objects.filter(tag_text=q[0][2]).values_list('width',
-                                                                            'length',
-                                                                            'xCoordinate',
-                                                                            'yCoordinate',
-                                                                            'tag_text__tag__tag',
-                                                                            'tag_text__id',
-                                                                            'tag_text__image__image')
         # inst = TagText.objects.filter(pk=rect[0][2]).values_list('tag__tag')
-        print (rect)
+        # print (rect)
         # print (inst)
-        l = rect[0::3]
-        print (l)
+        # l = rect[0::3]
+        # print (l)
         albums = {}
-        for i in l:
-            tag = i[4]
-            image_url = i[6]
+        for i in q:
+            tag = i[0]
+            image_url = i[1]
             print(tag)
             print(image_url)
             if tag not in albums:
                 albums[tag] = []
-                temp = {'image': image_url,'width': i[0],'length': i[1],'x': i[2],'y': i[3]}
+                temp = {'image': image_url,'width': i[3],'length': i[4],'x': i[5],'y': i[6]}
             albums[tag].append(temp)
         print (albums)
         return Response(albums)
