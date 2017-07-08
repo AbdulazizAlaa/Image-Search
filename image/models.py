@@ -67,20 +67,3 @@ class TagUsername(models.Model):
     #     return (self.user)
     def __str__(self):
         return '{}'.format(self.tag)
-
-
-class TagUsernameRectangle(models.Model):
-    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField(blank=True, null=True)
-    length = models.FloatField(blank=True, null=True)
-    xCoordinate = models.FloatField(blank=True, null=True)
-    yCoordinate = models.FloatField(blank=True, null=True)
-    tag_username = models.ForeignKey(TagUsername)
-
-class TagTextRectangle(models.Model):
-    # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField(blank=True, null=True)
-    length = models.FloatField(blank=True, null=True)
-    xCoordinate = models.FloatField(blank=True, null=True)
-    yCoordinate = models.FloatField(blank=True, null=True)
-    tag_text = models.ForeignKey(TagText)
