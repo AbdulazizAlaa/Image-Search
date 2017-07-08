@@ -121,7 +121,8 @@ class RenderImage(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
-
+        user_id = request.user.id
+        # print (user_id)
         text = request.GET.get("q")
         
         language = ""
@@ -137,7 +138,7 @@ class RenderImage(APIView):
         params = []
         if(language != "ar"):
             # Tags = NER.solve(text)
-            Tags = ["Omar", "Hadeer", "Nada"]
+            Tags = ["random", "train", "LINA"]
 
             for tag in Tags:
                 params.append({'tag': tag})
@@ -149,54 +150,34 @@ class RenderImage(APIView):
 
             for tag in Tags:
                 params.append({'tag': tag})
-        
-        # Serialize input data
-        serializer = ImageRetrieveSerializer(data={'Tags': params})
-
-        # Array for all images urls
+        images = []
         output = []
-
-        # Check validation
-        if(serializer.is_valid()):
-            # Check if no tags
-            if len(Tags) == 0:
-                return JsonResponse({'status': 1, 'images': []})
-
-            # For each Tag, get all images it is in
-            # And append their URLs to the output
-            # for tag in Tags:
-            #     # Get return image instance
-            #     tag_models = Tag.objects.filter(tag=tag)
-
-            #     # For each model, get its images' URLs
-            #     for tag_model in tag_models:
-            #         if len(tag_model.Images.all()) == 0:
-            #             continue
-
-            #         if not os.path.exists('media/images/tmp'):
-            #             os.mkdir('media/images/tmp')
-            #         # opencv_engine decleration
-            #         f = opencv_engine.OpenCVFaceEngine("engine")
-
-            #         # For each image call the face detection module
-            #         for image in tag_model.Images.all():
-            #             filename = image.image.url.split('/')[2]
-            #             img = cv2.imread(image.image.url, 1)  # change this with any other image on your computer
-            #             [img, faces, faces_rects] = f.crop_faces(img)
-
-            #             cv2.imwrite('media/images/tmp/' + filename, img)
-            #             output.append('/media/images/tmp/' + filename)
-
-            
-                    # # For each image in the tag model
-                    # for image in tag_model.Images.all():
-                    #   output.append("/" + str(image.image.url))
-
-            text = {'status': 1, 'images': output}
-        else:
-            text = {'status': -1, 'images': serializer.errors}
-        return JsonResponse(text)
-
+        print (Tags)
+        from django.db.models import Q
+        # captions search
+        images.append(Image.objects.filter(reduce(lambda x, y: x | y, [Q(caption__icontains=word) for word in Tags]),
+                    uploaded_by=user_id))#.values_list('image', 'caption', 'tagtext__tag__tag', 'tagusername__tag__username'))
+        # for query in images:
+        #     for e in query:
+        #         print (e.tag)
+        # tag texts search
+        images.append((Image.objects.filter(reduce(lambda x, y: x | y, [Q(tagtext__tag__tag=word) for word in Tags]),
+                                        uploaded_by=user_id).distinct()).values_list('image',
+                                                                                    'caption'))
+        # # search in tag username
+        images.append((Image.objects.filter(reduce(lambda x, y: x | y, [Q(tagusername__tag__username=word) for word in Tags]),
+                                        uploaded_by=user_id).distinct()).values_list('image',
+                                                                                    'caption'))
+        print (images)
+        # for query in images:
+        #     for image in query:
+        #         # print (image)
+        #         output.append(image.image.url)
+        # # print (i)
+        # print (output)
+        # print (set(output))
+        return Response({'images': set(output)})
+        
 
 # Get Image and apply face detection algorithm on it
 # then send the image back w/ coordinates, width, height
@@ -380,8 +361,3 @@ class photosOfMe(APIView):
             albums[tag].append(temp)
         # print (albums)
         return Response(albums)
-		print(search)
-		
-		text = {'results': list(search)}
-		print(text)
-		return Response(text)
