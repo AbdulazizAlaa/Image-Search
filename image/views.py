@@ -343,7 +343,7 @@ class MyPhotosFolder(APIView):
             print(image_url)
             if tag not in albums:
                 albums[tag] = []
-                temp = {'image': image_url,'width': i[3],'length': i[4],'x': i[5],'y': i[6]}
+            temp = {'image_url': image_url,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
             albums[tag].append(temp)
         print (albums)
         return Response(albums)
@@ -353,15 +353,30 @@ class MyPhotosFolder(APIView):
         # return Response({'tag_text': x})
 
 class photosOfMe(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self,request):
-        username = request.user.username
-        images = TagUsername.objects.filter(tag=username)
+        username = request.user.id
+        print (username)
+        q = TagUsername.objects.filter(tag=username).values_list('tag__username',
+                                                            'image__image',
+                                                            'tag__id',
+                                                            'width',
+                                                            'length',
+                                                            'xCoordinate',
+                                                            'yCoordinate')
+        print (q)
         # Join query
-        images = Image.objects.filter(tagusername__tag=user_id)
-
-        images_url = []
-
-        for image in images:
-            images_url.append(image.url)
-
-        return Response(images_url)
+        # images = Image.objects.filter(tagusername__tag=user_id)
+        albums = {}
+        for i in q:
+            tag = i[0]
+            image_url = i[1]
+            print(tag)
+            print(image_url)
+            if tag not in albums:
+                albums[tag] = []
+            temp = {'image_url': image_url,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            albums[tag].append(temp)
+        # print (albums)
+        return Response(albums)
