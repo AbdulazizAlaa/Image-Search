@@ -308,20 +308,15 @@ class MyPhotosFolder(APIView):
                                                             'image__id',
                                                             'image__caption').distinct()
         print (q)
-        # inst = TagText.objects.filter(pk=rect[0][2]).values_list('tag__tag')
-        # print (rect)
-        # print (inst)
-        # l = rect[0::3]
-        # print (l)
         albums = {}
         for i in q:
             tag = i[0]
             image_url = i[1]
             # Get all tags of this image
             tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
-            print (tags_text)
-            # print(tag)
-            # print(image_url)
+            # print (tags_text)
+            # Get all tags of this image
+            tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
             faces = []
             objects = []
             for t in tags_text:
@@ -335,6 +330,14 @@ class MyPhotosFolder(APIView):
                                 'x': t[3],
                                 'y': t[4],
                                 'user_flag': False})
+            for t in tags_username:
+                print ('ylawhy')
+                faces.append({'name': t[0],
+                            'w': t[1],
+                            'h': t[2],
+                            'x': t[3],
+                            'y': t[4],
+                            'user_flag': True})
             if tag not in albums:
                 albums[tag] = []
             temp = {'url': image_url,

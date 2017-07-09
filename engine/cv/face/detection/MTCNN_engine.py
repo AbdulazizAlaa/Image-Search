@@ -1,7 +1,7 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import resources.mtcnn.detect_face as detect_face
+# import resources.mtcnn.detect_face as detect_face
 
 from face.detection.face_module_interface import *
 from GlobalEntities import *
