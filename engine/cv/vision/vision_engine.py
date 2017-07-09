@@ -39,6 +39,7 @@ class VisionEngine():
         self.__face_data_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'+face_data_dir
         self.__face_model = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/resources/facenet/20170512-110547/20170512-110547.pb'
         self.__face_classifier = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/resources/facenet/face_classifier.pkl'
+
         #face recogition engine
         if(config['face_recognition'] == False):
             self.__faceRecognitionEngine = None
@@ -92,15 +93,21 @@ class VisionEngine():
             return
 
         # spliting img name and getting the name without the extention
+        name_parts = img_name.split('/')
+        name_len = len(name_parts)
+        if(name_len > 0):
+            img_name = name_parts[name_len-1]
+
         name_parts = img_name.split('.')
-        if(len(name_parts) > 0):
+        name_len = len(name_parts)
+        if(name_len > 0):
             img_name = name_parts[0]
 
         # face data directory
-        data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))+'/'+face_data_dir
+        data_dir = self.__face_data_dir
 
         print ("Saving image faces to folder: ")
-        print (data_dir)
+        # print (data_dir)
 
         for i in range(len(rects)):
             # the processed rectangle
@@ -110,6 +117,9 @@ class VisionEngine():
             face_name = img_name+'_'+str(i)+'.jpg'
             # folder name
             folder_name = data_dir+'/'+rect['name']
+            print("---------------------------------------")
+            print(folder_name)
+            print(face_name)
             if not os.path.exists(folder_name):
                 os.makedirs(folder_name)
 
@@ -140,7 +150,8 @@ class VisionEngine():
                 # adding the predicted class names to face rectangles
                 for i in range(len(face_predictions)):
                     temp_rect = faces_rects[i]
-                    temp_rect['name'] = face_predictions[i]
+                    temp_rect['name'] = face_predictions[i]['name']
+                    temp_rect['user_flag'] = face_predictions[i]['user_flag']
                     faces.append(temp_rect)
             else:
                 faces = faces_rects

@@ -31,14 +31,14 @@ class Image(models.Model):
 
 class TagText(models.Model):
     # the tag is a text
-    tag = models.ManyToManyField(Tag, related_name='tag_text')
+    name = models.ManyToManyField(Tag, related_name='tag_text')
     image = models.ForeignKey(Image)
 
     # # Detection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField(blank=True, null=True)
-    length = models.FloatField(blank=True, null=True)
-    xCoordinate = models.FloatField(blank=True, null=True)
-    yCoordinate = models.FloatField(blank=True, null=True)
+    w = models.FloatField(blank=True, null=True)
+    h = models.FloatField(blank=True, null=True)
+    x = models.FloatField(blank=True, null=True)
+    y = models.FloatField(blank=True, null=True)
 
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -49,14 +49,14 @@ class TagText(models.Model):
 
 class TagUsername(models.Model):
     # the tag is person
-    tag = models.ManyToManyField(User, related_name='tag_username')
+    name = models.ManyToManyField(User, related_name='tag_username')
     image = models.ForeignKey(Image)
 
     # # De tection Rectangle specs(width,height, coordinate x & coordinate y)
-    width = models.FloatField(blank=True, null=True)
-    length = models.FloatField(blank=True, null=True)
-    xCoordinate = models.FloatField(blank=True, null=True)
-    yCoordinate = models.FloatField(blank=True, null=True)
+    w = models.FloatField(blank=True, null=True)
+    h = models.FloatField(blank=True, null=True)
+    x = models.FloatField(blank=True, null=True)
+    y = models.FloatField(blank=True, null=True)
 
     # who added this tag
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -46,15 +46,8 @@ class ImageUploadSerializer(serializers.ModelSerializer):#test
     #   return obj.image.url
 
 
-# class TagListSerializer(serializers.ListSerializer):
-#     def create(self, validated_data):
-#         tags = [TagText(**item) for item in validated_data]
-#         # print tags
-#         return TagText.objects.bulk_create(tags)
-
-
 class TagTextSerializer(serializers.ModelSerializer):
-    tag = TagSerializer(many=True)
+    name = TagSerializer(many=True)
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field="username")
     image = serializers.CharField(source='image_id')
 
@@ -62,45 +55,45 @@ class TagTextSerializer(serializers.ModelSerializer):
         model = TagText
         fields = ('__all__')
 
-    def create(self, validated_data):
-        # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
-        # print tag_username
-        # print (validated_data)
-        # print (validated_data['tag'])
-        image = Image.objects.get(id=validated_data['image_id'])
-        t = TagText.objects.create(image=image,
-            user=validated_data['user'])
-        # print (validated_data)
-        for tag in validated_data['tag']:
-            try:
-                # print (tag['tag'])
-                tag = Tag.objects.get(tag=tag['tag'])
-                t.tag.add(tag)
-            except Tag.DoesNotExist:
-                print ("NO")
-                pass
-        return t
+    # def create(self, validated_data):
+    #     # tag_username = super(serializers.ModelSerializer, self).create(validated_data)
+    #     # print tag_username
+    #     # print (validated_data)
+    #     # print (validated_data['tag'])
+    #     image = Image.objects.get(id=validated_data['image_id'])
+    #     t = TagText.objects.create(image=image,
+    #         user=validated_data['user'])
+    #     # print (validated_data)
+    #     for tag in validated_data['tag']:
+    #         try:
+    #             # print (tag['tag'])
+    #             tag = Tag.objects.get(tag=tag['tag'])
+    #             t.tag.add(tag)
+    #         except Tag.DoesNotExist:
+    #             print ("NO")
+    #             pass
+    #     return t
 
 
 class TagUsernameSerializer(serializers.ModelSerializer):
-    tag = UsernameTagSerializer(many=True)
+    name = UsernameTagSerializer(many=True)
     user = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field="username")
     image = serializers.CharField(source='image_id')
 
     class Meta:
         model = TagUsername
-        fields = ('id', 'tag', 'user', 'image',)
-
-    def create(self, validated_data):
-        image = Image.objects.get(id=validated_data['image_id'])
-        t = TagUsername.objects.create(image=image,
-            user=validated_data['user'])
-        for tag in validated_data['tag']:
-            try:
-                # print (tag['username'])
-                user = User.objects.get(username=tag['username'])
-                t.tag.add(user)
-            except User.DoesNotExist:
-                print ("exception")
-                pass
-        return t
+        fields = ('__all__')
+    #
+    # def create(self, validated_data):
+    #     image = Image.objects.get(id=validated_data['image_id'])
+    #     t = TagUsername.objects.create(image=image,
+    #         user=validated_data['user'])
+    #     for tag in validated_data['tag']:
+    #         try:
+    #             # print (tag['username'])
+    #             user = User.objects.get(username=tag['username'])
+    #             t.tag.add(user)
+    #         except User.DoesNotExist:
+    #             print ("exception")
+    #             pass
+    #     return t
