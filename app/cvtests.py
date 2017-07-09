@@ -18,9 +18,12 @@ img = cv2.imread('/home/abdulaziz/Downloads/test/obj2.jpg',1) #change this with 
 #                                     'face_recognition': 'facenet',
 #                                     'object_detection_recognition': False,
 #                                     'captions_generation_engine': False})
-# # example use method store faces
-# # is used after Successfully tagging image by user so it can be used for training
+# example use method store faces
 # engine.store_face_training_data(img, [{'name': 'aziz', 'x': 424, 'h': 393, 'y': 188, 'w': 313}], "aziz.jpg")
+# is used after Successfully tagging image by user so it can be used for training
+
+# engine.test()
+
 
 # creating engine instance
 engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',

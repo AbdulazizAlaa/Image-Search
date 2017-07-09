@@ -5,13 +5,17 @@ from face.recognition.face_recognition_module_interface import *
 from GlobalEntities import *
 
 import face.recognition.facenet as facenet
+from face.recognition.augmentation import augment
+
 from scipy import misc
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+
 import tensorflow as tf
 from tensorflow.python.framework import ops
+
 import numpy as np
 import os
 import sys
@@ -52,7 +56,6 @@ class FacenetEngine(FaceRecognitionInterface):
 
         self.__classifier = self.__classifiers[classifier_type]
 
-
     def train(self):
         with tf.Graph().as_default():
 
@@ -66,10 +69,15 @@ class FacenetEngine(FaceRecognitionInterface):
                 for cls in dataset:
                     assert(len(cls.image_paths)>0, 'There must be at least one image for each class in the dataset')
 
-                paths, labels = facenet.get_image_paths_and_labels(dataset)
+                # TODO remove this read dataset
+                # paths, labels = facenet.get_image_paths_and_labels(dataset)
+
+                print(self.__data_dir)
+                images_list, labels = augment(self.__data_dir, 5)
+                print(len(images_list))
 
                 print('Number of classes: %d' % len(dataset))
-                print('Number of images: %d' % len(paths))
+                print('Number of images: %d' % len(images_list))
 
                 # Load the model
                 print('Loading feature extraction model')
@@ -83,24 +91,14 @@ class FacenetEngine(FaceRecognitionInterface):
 
                 # Run forward pass to calculate embeddings
                 print('Calculating features for images')
-                nrof_images = len(paths)
+                nrof_images = len(images_list)
                 nrof_batches_per_epoch = int(math.ceil(1.0*nrof_images / self.__batch_size))
                 emb_array = np.zeros((nrof_images, embedding_size))
 
-                for i in range(nrof_batches_per_epoch):
-                    start_index = i*self.__batch_size
-                    end_index = min((i+1)*self.__batch_size, nrof_images)
-
-                    paths_batch = paths[start_index:end_index]
-                    labels_batch = labels[start_index:end_index]
-
-                    images_list = facenet.load_data(paths_batch, False, False, self.__image_size)
-
-                    feed_dict = { images_placeholder:images_list, phase_train_placeholder:False }
-                    emb_array[start_index:end_index,:] = sess.run(embeddings, feed_dict=feed_dict)
+                feed_dict = { images_placeholder:images_list, phase_train_placeholder:False }
+                emb_array[:,:] = sess.run(embeddings, feed_dict=feed_dict)
 
                 classifier_filename_exp = os.path.expanduser(self.__classifier_filename)
-
 
                 # Train classifier
                 print('Training classifier')
