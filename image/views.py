@@ -241,16 +241,16 @@ class AddTag(APIView):
         # TAG username
         # saving tags and linking them to image
         for tag_obj_str in username_tag:
-            tag_username_obj = TagUsername.objects.create(image=image_obj,
-                                                        user=user_obj,
-                                                        h=tag_obj_str['h'],
-                                                        w=tag_obj_str['w'],
-                                                        y=tag_obj_str['y'],
-                                                        x=tag_obj_str['x'])
 
             # getting the tag object and then associate with image
             try:
                 tagged_user = User.objects.get(username=tag_obj_str['name'])
+                tag_username_obj = TagUsername.objects.create(image=image_obj,
+                                                            user=user_obj,
+                                                            h=tag_obj_str['h'],
+                                                            w=tag_obj_str['w'],
+                                                            y=tag_obj_str['y'],
+                                                            x=tag_obj_str['x'])
 
                 # adding the tag to image
                 tag_username_obj.name.add(tagged_user)
@@ -297,7 +297,7 @@ class MyPhotosFolder(APIView):
 
     def get(self, request):
         user_id = request.user.id
-        # text tags:
+        ####################################################text tags:###################################
         q = TagText.objects.filter(user=user_id).values_list('name__tag',
                                                             'image__image',
                                                             'name__id',
@@ -307,7 +307,7 @@ class MyPhotosFolder(APIView):
                                                             'y',
                                                             'image__id',
                                                             'image__caption').distinct()
-        print (q)
+        # print (q)
         albums = {}
         for i in q:
             tag = i[0]
@@ -317,6 +317,56 @@ class MyPhotosFolder(APIView):
             # print (tags_text)
             # Get all tags of this image
             tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
+            faces = []
+            objects = []
+            for t in tags_text:
+                if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                    objects.append(t[0])
+                else:
+                    # print ('ylawhy')
+                    faces.append({'name': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': False})
+            for t in tags_username:
+                # print ('ylawhy')
+                faces.append({'name': t[0],
+                            'w': t[1],
+                            'h': t[2],
+                            'x': t[3],
+                            'y': t[4],
+                            'user_flag': True})
+            if tag not in albums:
+                albums[tag] = []
+            temp = {'url': image_url,
+                    'faces': faces,
+                    'caption': i[8],
+                    'objects': objects}
+            albums[tag].append(temp)
+        # print (albums)
+
+        ##########################################username tags###########################################
+        q = TagUsername.objects.filter(user=user_id).values_list('name__username',
+                                                            'image__image',
+                                                            'name__id',
+                                                            'w',
+                                                            'h',
+                                                            'x',
+                                                            'y',
+                                                            'image__id',
+                                                            'image__caption').distinct()
+        print (q)
+        for i in q:
+            tag = i[0]
+            image_url = i[1]
+            # Get all tags of this image
+            tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
+            # print (tags_text)
+            # Get all tags of this image
+            tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
+            print (tags_username)
             faces = []
             objects = []
             for t in tags_text:
