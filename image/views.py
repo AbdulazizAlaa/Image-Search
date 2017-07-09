@@ -274,25 +274,23 @@ class AddTag(APIView):
         return Response({'status':1})
 
 
-class getUsername(APIView):
+class getSuggestions(APIView):
     def get(self, request):
         q = request.GET.get("q")
         # icontains acts as LIKE in sql, icontains is case insensitive
-        search = User.objects.filter(username__icontains=q).values_list('username')
+        search = []
+        usernames = User.objects.filter(username__icontains=q).values_list('username')
+        texts = Tag.objects.filter(tag__icontains=q).values_list('tag')
+        print ((usernames))
+        for name in usernames:
+            search.append({'name': name[0], 'user_flag': True})
+        for name in texts:
+            search.append({'name': name[0], 'user_flag': False})
+
         print (search)
-        text = {'results': list(search)}
-        print (text)
+        text = {'suggestions': search}
         return Response(text)
 
-class getTextTag(APIView):
-	def get(self, request):
-		q = request.GET.get("q")
-		search = Tag.objects.filter(tag__icontains=q).values_list('tag', flat=True).distinct()
-		print (search)
-
-		text = {'results': list(search)}
-		print (text)
-		return Response(text)
 
 class MyPhotosFolder(APIView):
     permission_classes = (permissions.IsAuthenticated,)
