@@ -45,20 +45,20 @@ class ImageUpload(APIView):
 
             image_data = cv2.imread(image_file)
 
-            # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-            #                                     'face_recognition': 'facenet',
-            #                                     'object_detection_recognition': 'inception',
-            #                                     'captions_generation_engine': True})
+            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                                'face_recognition': 'facenet',
+                                                'object_detection_recognition': 'inception',
+                                                'captions_generation_engine': True})
 
-            # results = engine.processImage(image_data)
+            results = engine.processImage(image_data)
 
-            # objects = results['objects']
-            # faces = results['faces']
-            # caption = results['captions']
+            objects = results['objects']
+            faces = results['faces']
+            caption = results['captions']
 
-            objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
-            caption = "random caption for random image"
-            faces = {}
+            # objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
+            # caption = "random caption for random image"
+            # faces = {}
             print ('objects', objects)
             print('faces', faces)
             print('caption', caption)
@@ -86,7 +86,7 @@ class ImageUpload(APIView):
                     # print('object')
                     # print(tag_obj)
                     # adding the tag to image
-                    tag_text_obj.tag.add(tag_obj)
+                    tag_text_obj.name.add(tag_obj)
                 except Tag.DoesNotExist:
                     print ("NO")
                     pass
@@ -124,7 +124,7 @@ class RenderImage(APIView):
         user_id = request.user.id
         # print (user_id)
         text = request.GET.get("q")
-        
+
         language = ""
 
         eng_matches = re.findall(pattern="([a-z]|[A-Z]|[0-9])", string=text)
@@ -177,26 +177,6 @@ class RenderImage(APIView):
         # print (output)
         # print (set(output))
         return Response({'images': set(output)})
-        
-
-# Get Image and apply face detection algorithm on it
-# then send the image back w/ coordinates, width, height
-class FaceDetection(APIView):
-  def post(self, request):
-      image_data = request.data.get('image')
-
-      data = image_data.read()
-      # convert the image to a NumPy array and then read it into
-      # OpenCV format
-      image = np.asarray(bytearray(data), dtype="uint8")
-      image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-
-      engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                          'face_recognition': 'facenet',
-                                          'object_detection_recognition': 'inception'})
-      results = engine.processImage(image)
-      return Response(results)
-
 
 class AddTag(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -211,29 +191,27 @@ class AddTag(APIView):
         image_id = request.data.get("image")
         try:
             image_obj = Image.objects.get(id=image_id)
+            image_name = image_obj.image.name
+            image_file = image_obj.image.url
         except:
             return Response({'status':-1, 'data':'Image Not Found'})
 
-        # # creating engine instance
-        # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-        #                                     'face_recognition': 'facenet',
-        #                                     'object_detection_recognition': False,
-        #                                     'captions_generation_engine': False})
+        # image object
+        image_data = cv2.imread(image_file)
 
-        # # is used after Successfully tagging image by user so it can be used for training
-        # engine.store_face_training_data(img, [{'name': 'aziz', 'x': 424, 'h': 393, 'y': 188, 'w': 313}], "aziz.jpg")
-
+        # getting actual persons rectangles based on user_flag
+        user_tag_rect = []
 
         # TAG TEXT
         # saving tags and linking them to image
         for tag_obj_str in text_tag:
             tag_text_obj = TagText.objects.create(image=image_obj,
                                                 user=user_obj,
-                                                length=tag_obj_str['length'],
-                                                width=tag_obj_str['width'],
-                                                yCoordinate=tag_obj_str['yCoordinate'],
-                                                xCoordinate=tag_obj_str['xCoordinate'])
-            tag_serializer = TagSerializer(data={'tag': tag_obj_str['tag']})
+                                                h=tag_obj_str['h'],
+                                                w=tag_obj_str['w'],
+                                                y=tag_obj_str['y'],
+                                                x=tag_obj_str['x'])
+            tag_serializer = TagSerializer(data={'tag': tag_obj_str['name']})
             if(tag_serializer.is_valid()):
                 try:
                     tag_serializer.save()
@@ -247,12 +225,15 @@ class AddTag(APIView):
             # getting the tag object and then associate with image
             try:
                 # getting the tag object
-                tag_obj = Tag.objects.filter(tag=tag_obj_str['tag']).first()
+                tag_obj = Tag.objects.filter(tag=tag_obj_str['name']).first()
                 # print('-------------')
                 # print('object')
                 # print(tag_obj)
                 # adding the tag to image
-                tag_text_obj.tag.add(tag_obj)
+                tag_text_obj.name.add(tag_obj)
+
+                tag_obj_str['name'] = tag_obj_str['name']+"_0"
+                user_tag_rect.append(tag_obj_str)
             except Tag.DoesNotExist:
                 print ("Tag does not exist")
                 pass
@@ -262,20 +243,33 @@ class AddTag(APIView):
         for tag_obj_str in username_tag:
             tag_username_obj = TagUsername.objects.create(image=image_obj,
                                                         user=user_obj,
-                                                        length=tag_obj_str['length'],
-                                                        width=tag_obj_str['width'],
-                                                        yCoordinate=tag_obj_str['yCoordinate'],
-                                                        xCoordinate=tag_obj_str['xCoordinate'])
+                                                        h=tag_obj_str['h'],
+                                                        w=tag_obj_str['w'],
+                                                        y=tag_obj_str['y'],
+                                                        x=tag_obj_str['x'])
 
             # getting the tag object and then associate with image
             try:
-                tagged_user = User.objects.get(username=tag_obj_str['username'])
+                tagged_user = User.objects.get(username=tag_obj_str['name'])
 
                 # adding the tag to image
-                tag_username_obj.tag.add(tagged_user)
+                tag_username_obj.name.add(tagged_user)
+
+                tag_obj_str['name'] = tag_obj_str['name']+"_1"
+                user_tag_rect.append(tag_obj_str)
             except:
                 print ("user does not exist")
                 pass
+
+        # creating engine instance
+        engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                            'face_recognition': 'facenet',
+                                            'object_detection_recognition': False,
+                                            'captions_generation_engine': False})
+
+        print(user_tag_rect)
+        # is used after Successfully tagging image by user so it can be used for training
+        engine.store_face_training_data(image_data, user_tag_rect, image_name)
 
         return Response({'status':1})
 
@@ -306,13 +300,13 @@ class MyPhotosFolder(APIView):
     def get(self, request):
         user_id = request.user.id
         # text tags:
-        q = TagText.objects.filter(user=user_id).values_list('tag__tag',
+        q = TagText.objects.filter(user=user_id).values_list('name__tag',
                                                             'image__image',
-                                                            'tag__id',
-                                                            'width',
-                                                            'length',
-                                                            'xCoordinate',
-                                                            'yCoordinate')
+                                                            'name__id',
+                                                            'w',
+                                                            'h',
+                                                            'x',
+                                                            'y')
         print (q)
         # inst = TagText.objects.filter(pk=rect[0][2]).values_list('tag__tag')
         # print (rect)
@@ -327,7 +321,7 @@ class MyPhotosFolder(APIView):
             print(image_url)
             if tag not in albums:
                 albums[tag] = []
-            temp = {'image_url': image_url,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            temp = {'image_url': image_url, 'user_flag': False,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
             albums[tag].append(temp)
         print (albums)
         return Response(albums)
@@ -339,13 +333,13 @@ class photosOfMe(APIView):
     def get(self,request):
         username = request.user.id
         print (username)
-        q = TagUsername.objects.filter(tag=username).values_list('tag__username',
+        q = TagUsername.objects.filter(name=username).values_list('name__username',
                                                             'image__image',
-                                                            'tag__id',
-                                                            'width',
-                                                            'length',
-                                                            'xCoordinate',
-                                                            'yCoordinate')
+                                                            'name__id',
+                                                            'w',
+                                                            'h',
+                                                            'x',
+                                                            'y')
         print (q)
         # Join query
         # images = Image.objects.filter(tagusername__tag=user_id)
@@ -357,7 +351,7 @@ class photosOfMe(APIView):
             print(image_url)
             if tag not in albums:
                 albums[tag] = []
-            temp = {'image_url': image_url,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            temp = {'image_url': image_url, 'user_flag': False,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
             albums[tag].append(temp)
         # print (albums)
         return Response(albums)

@@ -86,7 +86,7 @@ class FacenetEngine(FaceRecognitionInterface):
                 nrof_images = len(paths)
                 nrof_batches_per_epoch = int(math.ceil(1.0*nrof_images / self.__batch_size))
                 emb_array = np.zeros((nrof_images, embedding_size))
-                augmented_labels = []
+
                 for i in range(nrof_batches_per_epoch):
                     start_index = i*self.__batch_size
                     end_index = min((i+1)*self.__batch_size, nrof_images)
@@ -96,51 +96,24 @@ class FacenetEngine(FaceRecognitionInterface):
 
                     images_list = facenet.load_data(paths_batch, False, False, self.__image_size)
 
-                    # image_1 = images_list[0]
-                    #
-                    # images_aug = self.data_augment(images).eval()
-                    #
-                    # image_1_aug = images_list[0]
-                    #
-                    print (images_list)
-                    print('hiiii')
-                    print('byeee')
-                    # cv2.imshow('real', image_1)
-                    # cv2.imshow('aug', image_1_aug)
-                    # cv2.waitKey(0)
-                    # augmented_labels.append(labels_batch)
-                    # print (augmented_labels)
-                    break
-                    feed_dict = { images_placeholder:images_batch, phase_train_placeholder:False }
+                    feed_dict = { images_placeholder:images_list, phase_train_placeholder:False }
                     emb_array[start_index:end_index,:] = sess.run(embeddings, feed_dict=feed_dict)
 
                 classifier_filename_exp = os.path.expanduser(self.__classifier_filename)
 
 
-                print(len(augmented_labels))
+                # Train classifier
+                print('Training classifier')
+                self.__classifier.fit(emb_array, labels)
 
-                # # Train classifier
-                # print('Training classifier')
-                # self.__classifier.fit(emb_array, augmented_labels)
-                #
-                # # Create a list of class names
-                # class_names = [ cls.name.replace('_', ' ') for cls in dataset]
-                #
-                # # Saving classifier model
-                # with open(classifier_filename_exp, 'wb') as outfile:
-                #     pickle.dump((self.__classifier, class_names), outfile)
-                # print('Saved classifier model to file "%s"' % classifier_filename_exp)
+                # Create a list of class names
+                class_names = [ cls.name.replace('_', ' ') for cls in dataset]
 
+                # Saving classifier model
+                with open(classifier_filename_exp, 'wb') as outfile:
+                    pickle.dump((self.__classifier, class_names), outfile)
+                print('Saved classifier model to file "%s"' % classifier_filename_exp)
 
-    def prep_data_augment(self, image):
-        image = tf.image.random_flip_left_right(image)
-        image = tf.image.random_brightness(image, max_delta=63/255.0)
-        image = tf.image.random_contrast(image, lower=0.2, upper=1.8)
-        return image
-
-    def data_augment(self, input_tensor):
-        output_tensor = tf.map_fn(self.prep_data_augment, input_tensor, parallel_iterations=10)
-        return output_tensor
 
     def predict_proba(self, imgs):
         if(len(imgs) == 0):
@@ -190,7 +163,17 @@ class FacenetEngine(FaceRecognitionInterface):
                 # getting the predictions
                 face_predictions = []
                 for i in range(len(best_class_indices)):
-                    face_predictions.append(class_names[best_class_indices[i]])
+                    name_parts = class_names[best_class_indices[i]].split(" ")
+                    name = ''
+                    user_flag = False
+                    if(len(name_parts) == 2):
+                        name = name_parts[0]
+                        user_flag = (name_parts[1] == 0)
+                    elif(len(name_parts) > 0):
+                        name = name_parts[0]
+                        user_flag = False
+
+                    face_predictions.append({'name': name, 'user_flag': user_flag})
                     # print('%4d %s: %.3f' %
                     # (i, class_names[best_class_indices[i]], best_class_probabilities[i]))
 
