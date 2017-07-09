@@ -137,46 +137,101 @@ class RenderImage(APIView):
         # Params of the serializer
         params = []
         if(language != "ar"):
-            # Tags = NER.solve(text)
-            Tags = ["random", "train", "LINA"]
+            # tags = NER.solve(text)
+            tags = ["random", "nada", "backpack"]
 
-            for tag in Tags:
+            for tag in tags:
                 params.append({'tag': tag})
         else:
             # call Arabic model...
             # arabic_model = ANER.ANER()
-            # Tags = arabic_model.solve(text)
-            Tags = ["arabic_name", "arabic_name", "arabic_name"]
+            # tags = arabic_model.solve(text)
+            tags = ["arabic_name", "arabic_name", "arabic_name"]
 
-            for tag in Tags:
+            for tag in tags:
                 params.append({'tag': tag})
-        images = []
-        output = []
-        print (Tags)
+        query = []
+        output = {}
+        # print (tags)
         from django.db.models import Q
+        import functools
+
         # captions search
-        images.append(Image.objects.filter(reduce(lambda x, y: x | y, [Q(caption__icontains=word) for word in Tags]),
-                    uploaded_by=user_id))#.values_list('image', 'caption', 'tagtext__tag__tag', 'tagusername__tag__username'))
+        query.append(Image.objects.filter(functools.reduce(lambda x, y: x | y, [Q(caption__icontains=word) for word in tags]),
+                    uploaded_by=user_id).distinct().values_list('image', 'caption', 'id'))
         # for query in images:
         #     for e in query:
         #         print (e.tag)
         # tag texts search
-        images.append((Image.objects.filter(reduce(lambda x, y: x | y, [Q(tagtext__tag__tag=word) for word in Tags]),
+        query.append((Image.objects.filter(functools.reduce(lambda x, y: x | y, [Q(tagtext__name__tag=word) for word in tags]),
                                         uploaded_by=user_id).distinct()).values_list('image',
-                                                                                    'caption'))
+                                                                                    'caption',
+                                                                                    'id'))
         # # search in tag username
-        images.append((Image.objects.filter(reduce(lambda x, y: x | y, [Q(tagusername__tag__username=word) for word in Tags]),
+        query.append((Image.objects.filter(functools.reduce(lambda x, y: x | y, [Q(tagusername__name__username=word) for word in tags]),
                                         uploaded_by=user_id).distinct()).values_list('image',
-                                                                                    'caption'))
-        print (images)
-        # for query in images:
-        #     for image in query:
-        #         # print (image)
+                                                                                    'caption',
+                                                                                    'id'))
+        print (query)
+        images = []
+        temp = []
+        for image in query:
+            for i in image:
+                temp.append(i[0])
+        temp = set(temp)
+        print (temp)
+        for i in temp:
+            print (i)
+            images.append(Image.objects.filter(image=i).values_list('image',
+                                                                    'caption',
+                                                                    'id'))
+        faces = []
+        objects = []
+        for query in images:
+            for image in query:
+                url = image[0]
+                tag_usernames = TagUsername.objects.filter(image__id=image[2]).values_list('name__username',
+                                                                                        'w',
+                                                                                        'h',
+                                                                                        'x',
+                                                                                        'y')
+                tag_texts = TagText.objects.filter(image__id=image[2]).values_list('name__tag',
+                                                                                'w',
+                                                                                'h',
+                                                                                'x',
+                                                                                'y')
+                for t in tag_usernames:
+                    faces.append({'names': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': True})
+                for t in tag_texts:
+                    if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                        objects.append(t[0])
+                    else:
+                        # print ('ylawhy')
+                        faces.append({'name': t[0],
+                                    'w': t[1],
+                                    'h': t[2],
+                                    'x': t[3],
+                                    'y': t[4],
+                                    'user_flag': False})
+                    if url not in output:
+                        output[url] = []
+                    temp = {
+                        'faces': faces,
+                        'caption': image[1],
+                        'objects': objects}
+                output[url].append(temp)
+                # print (faces)
+                # print (tag_usernames)
         #         output.append(image.image.url)
         # # print (i)
         # print (output)
         # print (set(output))
-        return Response({'images': set(output)})
+        return Response(output)
 
 class AddTag(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -241,16 +296,16 @@ class AddTag(APIView):
         # TAG username
         # saving tags and linking them to image
         for tag_obj_str in username_tag:
-            tag_username_obj = TagUsername.objects.create(image=image_obj,
-                                                        user=user_obj,
-                                                        h=tag_obj_str['h'],
-                                                        w=tag_obj_str['w'],
-                                                        y=tag_obj_str['y'],
-                                                        x=tag_obj_str['x'])
 
             # getting the tag object and then associate with image
             try:
                 tagged_user = User.objects.get(username=tag_obj_str['name'])
+                tag_username_obj = TagUsername.objects.create(image=image_obj,
+                                                            user=user_obj,
+                                                            h=tag_obj_str['h'],
+                                                            w=tag_obj_str['w'],
+                                                            y=tag_obj_str['y'],
+                                                            x=tag_obj_str['x'])
 
                 # adding the tag to image
                 tag_username_obj.name.add(tagged_user)
@@ -297,31 +352,105 @@ class MyPhotosFolder(APIView):
 
     def get(self, request):
         user_id = request.user.id
-        # text tags:
+        ####################################################text tags:###################################
         q = TagText.objects.filter(user=user_id).values_list('name__tag',
                                                             'image__image',
                                                             'name__id',
                                                             'w',
                                                             'h',
                                                             'x',
-                                                            'y')
-        print (q)
-        # inst = TagText.objects.filter(pk=rect[0][2]).values_list('tag__tag')
-        # print (rect)
-        # print (inst)
-        # l = rect[0::3]
-        # print (l)
+                                                            'y',
+                                                            'image__id',
+                                                            'image__caption').distinct()
+        # print (q)
         albums = {}
         for i in q:
             tag = i[0]
             image_url = i[1]
-            print(tag)
-            print(image_url)
+            # Get all tags of this image
+            tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
+            # print (tags_text)
+            # Get all tags of this image
+            tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
+            faces = []
+            objects = []
+            for t in tags_text:
+                if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                    objects.append(t[0])
+                else:
+                    # print ('ylawhy')
+                    faces.append({'name': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': False})
+            for t in tags_username:
+                # print ('ylawhy')
+                faces.append({'name': t[0],
+                            'w': t[1],
+                            'h': t[2],
+                            'x': t[3],
+                            'y': t[4],
+                            'user_flag': True})
             if tag not in albums:
                 albums[tag] = []
-            temp = {'image_url': image_url, 'user_flag': False,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            temp = {'url': image_url,
+                    'faces': faces,
+                    'caption': i[8],
+                    'objects': objects}
             albums[tag].append(temp)
-        print (albums)
+        # print (albums)
+
+        ##########################################username tags###########################################
+        q = TagUsername.objects.filter(user=user_id, ).values_list('name__username',
+                                                            'image__image',
+                                                            'name__id',
+                                                            'w',
+                                                            'h',
+                                                            'x',
+                                                            'y',
+                                                            'image__id',
+                                                            'image__caption').distinct()
+        print (q)
+        for i in q:
+            tag = i[0]
+            image_url = i[1]
+            # Get all tags of this image
+            tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
+            # print (tags_text)
+            # Get all tags of this image
+            tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
+            print (tags_username)
+            faces = []
+            objects = []
+            for t in tags_text:
+                if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                    objects.append(t[0])
+                else:
+                    print ('ylawhy')
+                    faces.append({'name': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': False})
+            for t in tags_username:
+                print ('ylawhy')
+                faces.append({'name': t[0],
+                            'w': t[1],
+                            'h': t[2],
+                            'x': t[3],
+                            'y': t[4],
+                            'user_flag': True})
+            if tag not in albums:
+                albums[tag] = []
+            temp = {'url': image_url,
+                    'faces': faces,
+                    'caption': i[8],
+                    'objects': objects}
+            albums[tag].append(temp)
+        # print (albums)
         return Response(albums)
 
 
@@ -330,14 +459,16 @@ class photosOfMe(APIView):
 
     def get(self,request):
         username = request.user.id
-        print (username)
-        q = TagUsername.objects.filter(name=username).values_list('name__username',
+        print (request.user.username)
+        q = TagUsername.objects.filter(name=username).values_list('user__username',
                                                             'image__image',
                                                             'name__id',
                                                             'w',
                                                             'h',
                                                             'x',
-                                                            'y')
+                                                            'y',
+                                                            'image__id',
+                                                            'image__caption')
         print (q)
         # Join query
         # images = Image.objects.filter(tagusername__tag=user_id)
@@ -345,11 +476,38 @@ class photosOfMe(APIView):
         for i in q:
             tag = i[0]
             image_url = i[1]
-            print(tag)
-            print(image_url)
+            # Get all tags of this image
+            tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
+            # print (tags_text)
+            # Get all tags of this image
+            tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
+            print (tags_username)
+            faces = []
+            objects = []
+            for t in tags_text:
+                if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                    objects.append(t[0])
+                else:
+                    print ('ylawhy')
+                    faces.append({'name': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': False})
+            for t in tags_username:
+                print ('ylawhy')
+                faces.append({'name': t[0],
+                            'w': t[1],
+                            'h': t[2],
+                            'x': t[3],
+                            'y': t[4],
+                            'user_flag': True})
             if tag not in albums:
                 albums[tag] = []
-            temp = {'image_url': image_url, 'user_flag': False,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            temp = {'url': image_url,
+                    'faces': faces,
+                    'caption': i[8],
+                    'objects': objects}
             albums[tag].append(temp)
-        # print (albums)
         return Response(albums)
