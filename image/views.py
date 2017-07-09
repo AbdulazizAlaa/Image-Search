@@ -58,7 +58,7 @@ class ImageUpload(APIView):
 
             objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
             caption = "random caption for random image"
-            faces = {}
+            faces = []
             print ('objects', objects)
             print('faces', faces)
             print('caption', caption)
@@ -137,46 +137,101 @@ class RenderImage(APIView):
         # Params of the serializer
         params = []
         if(language != "ar"):
-            # Tags = NER.solve(text)
-            Tags = ["random", "train", "LINA"]
+            # tags = NER.solve(text)
+            tags = ["random", "nada", "backpack"]
 
-            for tag in Tags:
+            for tag in tags:
                 params.append({'tag': tag})
         else:
             # call Arabic model...
             # arabic_model = ANER.ANER()
-            # Tags = arabic_model.solve(text)
-            Tags = ["arabic_name", "arabic_name", "arabic_name"]
+            # tags = arabic_model.solve(text)
+            tags = ["arabic_name", "arabic_name", "arabic_name"]
 
-            for tag in Tags:
+            for tag in tags:
                 params.append({'tag': tag})
-        images = []
-        output = []
-        print (Tags)
+        query = []
+        output = {}
+        # print (tags)
         from django.db.models import Q
+        import functools
+
         # captions search
-        images.append(Image.objects.filter(reduce(lambda x, y: x | y, [Q(caption__icontains=word) for word in Tags]),
-                    uploaded_by=user_id))#.values_list('image', 'caption', 'tagtext__tag__tag', 'tagusername__tag__username'))
+        query.append(Image.objects.filter(functools.reduce(lambda x, y: x | y, [Q(caption__icontains=word) for word in tags]),
+                    uploaded_by=user_id).distinct().values_list('image', 'caption', 'id'))
         # for query in images:
         #     for e in query:
         #         print (e.tag)
         # tag texts search
-        images.append((Image.objects.filter(reduce(lambda x, y: x | y, [Q(tagtext__tag__tag=word) for word in Tags]),
+        query.append((Image.objects.filter(functools.reduce(lambda x, y: x | y, [Q(tagtext__name__tag=word) for word in tags]),
                                         uploaded_by=user_id).distinct()).values_list('image',
-                                                                                    'caption'))
+                                                                                    'caption',
+                                                                                    'id'))
         # # search in tag username
-        images.append((Image.objects.filter(reduce(lambda x, y: x | y, [Q(tagusername__tag__username=word) for word in Tags]),
+        query.append((Image.objects.filter(functools.reduce(lambda x, y: x | y, [Q(tagusername__name__username=word) for word in tags]),
                                         uploaded_by=user_id).distinct()).values_list('image',
-                                                                                    'caption'))
-        print (images)
-        # for query in images:
-        #     for image in query:
-        #         # print (image)
+                                                                                    'caption',
+                                                                                    'id'))
+        print (query)
+        images = []
+        temp = []
+        for image in query:
+            for i in image:
+                temp.append(i[0])
+        temp = set(temp)
+        print (temp)
+        for i in temp:
+            print (i)
+            images.append(Image.objects.filter(image=i).values_list('image',
+                                                                    'caption',
+                                                                    'id'))
+        faces = []
+        objects = []
+        for query in images:
+            for image in query:
+                url = image[0]
+                tag_usernames = TagUsername.objects.filter(image__id=image[2]).values_list('name__username',
+                                                                                        'w',
+                                                                                        'h',
+                                                                                        'x',
+                                                                                        'y')
+                tag_texts = TagText.objects.filter(image__id=image[2]).values_list('name__tag',
+                                                                                'w',
+                                                                                'h',
+                                                                                'x',
+                                                                                'y')
+                for t in tag_usernames:
+                    faces.append({'names': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': True})
+                for t in tag_texts:
+                    if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                        objects.append(t[0])
+                    else:
+                        # print ('ylawhy')
+                        faces.append({'name': t[0],
+                                    'w': t[1],
+                                    'h': t[2],
+                                    'x': t[3],
+                                    'y': t[4],
+                                    'user_flag': False})
+                    if url not in output:
+                        output[url] = []
+                    temp = {
+                        'faces': faces,
+                        'caption': image[1],
+                        'objects': objects}
+                output[url].append(temp)
+                # print (faces)
+                # print (tag_usernames)
         #         output.append(image.image.url)
         # # print (i)
         # print (output)
         # print (set(output))
-        return Response({'images': set(output)})
+        return Response(output)
 
 class AddTag(APIView):
     permission_classes = (permissions.IsAuthenticated,)
