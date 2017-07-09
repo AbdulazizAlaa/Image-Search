@@ -44,7 +44,7 @@ class TagText(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return '{}'.format(self.tag)
+        return '{}'.format(self.name)
 
 
 class TagUsername(models.Model):
@@ -66,4 +66,4 @@ class TagUsername(models.Model):
     #     print (tag1)
     #     return (self.user)
     def __str__(self):
-        return '{}'.format(self.tag)
+        return '{}'.format(self.name)

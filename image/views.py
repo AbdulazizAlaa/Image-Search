@@ -15,10 +15,10 @@ import re
 # from engine.nlp.aner import ANER
 from rest_framework import permissions
 
-from engine.cv.vision import vision_engine
+# from engine.cv.vision import vision_engine
 
 import numpy as np
-import cv2
+# import cv2
 
 
 class ImageUpload(APIView):
@@ -43,22 +43,22 @@ class ImageUpload(APIView):
 
             image_obj = Image.objects.get(id=serializer_obj['id'])
 
-            image_data = cv2.imread(image_file)
+            # image_data = cv2.imread(image_file)
 
-            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                                'face_recognition': 'facenet',
-                                                'object_detection_recognition': 'inception',
-                                                'captions_generation_engine': True})
+            # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+            #                                     'face_recognition': 'facenet',
+            #                                     'object_detection_recognition': 'inception',
+            #                                     'captions_generation_engine': True})
 
-            results = engine.processImage(image_data)
+            # results = engine.processImage(image_data)
 
-            objects = results['objects']
-            faces = results['faces']
-            caption = results['captions']
+            # objects = results['objects']
+            # faces = results['faces']
+            # caption = results['captions']
 
-            # objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
-            # caption = "random caption for random image"
-            # faces = {}
+            objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
+            caption = "random caption for random image"
+            faces = {}
             print ('objects', objects)
             print('faces', faces)
             print('caption', caption)
@@ -197,7 +197,7 @@ class AddTag(APIView):
             return Response({'status':-1, 'data':'Image Not Found'})
 
         # image object
-        image_data = cv2.imread(image_file)
+        # image_data = cv2.imread(image_file)
 
         # getting actual persons rectangles based on user_flag
         user_tag_rect = []
@@ -262,14 +262,14 @@ class AddTag(APIView):
                 pass
 
         # creating engine instance
-        engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-                                            'face_recognition': 'facenet',
-                                            'object_detection_recognition': False,
-                                            'captions_generation_engine': False})
+        # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+        #                                     'face_recognition': 'facenet',
+        #                                     'object_detection_recognition': False,
+        #                                     'captions_generation_engine': False})
 
-        print(user_tag_rect)
+        # print(user_tag_rect)
         # is used after Successfully tagging image by user so it can be used for training
-        engine.store_face_training_data(image_data, user_tag_rect, image_name)
+        # engine.store_face_training_data(image_data, user_tag_rect, image_name)
 
         return Response({'status':1})
 
@@ -304,7 +304,9 @@ class MyPhotosFolder(APIView):
                                                             'w',
                                                             'h',
                                                             'x',
-                                                            'y')
+                                                            'y',
+                                                            'image__id',
+                                                            'image__caption').distinct()
         print (q)
         # inst = TagText.objects.filter(pk=rect[0][2]).values_list('tag__tag')
         # print (rect)
@@ -315,13 +317,32 @@ class MyPhotosFolder(APIView):
         for i in q:
             tag = i[0]
             image_url = i[1]
-            print(tag)
-            print(image_url)
+            # Get all tags of this image
+            tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
+            print (tags_text)
+            # print(tag)
+            # print(image_url)
+            faces = []
+            objects = []
+            for t in tags_text:
+                if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                    objects.append(t[0])
+                else:
+                    print ('ylawhy')
+                    faces.append({'name': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': False})
             if tag not in albums:
                 albums[tag] = []
-            temp = {'image_url': image_url, 'user_flag': False,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            temp = {'url': image_url,
+                    'faces': faces,
+                    'caption': i[8],
+                    'objects': objects}
             albums[tag].append(temp)
-        print (albums)
+        # print (albums)
         return Response(albums)
 
 
