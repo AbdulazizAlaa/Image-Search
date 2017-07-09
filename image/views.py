@@ -348,7 +348,7 @@ class MyPhotosFolder(APIView):
         # print (albums)
 
         ##########################################username tags###########################################
-        q = TagUsername.objects.filter(user=user_id).values_list('name__username',
+        q = TagUsername.objects.filter(user=user_id, ).values_list('name__username',
                                                             'image__image',
                                                             'name__id',
                                                             'w',
@@ -404,14 +404,16 @@ class photosOfMe(APIView):
 
     def get(self,request):
         username = request.user.id
-        print (username)
-        q = TagUsername.objects.filter(name=username).values_list('name__username',
+        print (request.user.username)
+        q = TagUsername.objects.filter(name=username).values_list('user__username',
                                                             'image__image',
                                                             'name__id',
                                                             'w',
                                                             'h',
                                                             'x',
-                                                            'y')
+                                                            'y',
+                                                            'image__id',
+                                                            'image__caption')
         print (q)
         # Join query
         # images = Image.objects.filter(tagusername__tag=user_id)
@@ -419,11 +421,38 @@ class photosOfMe(APIView):
         for i in q:
             tag = i[0]
             image_url = i[1]
-            print(tag)
-            print(image_url)
+            # Get all tags of this image
+            tags_text = TagText.objects.filter(image__id=i[7]).values_list('name__tag', 'w', 'h', 'x', 'y')
+            # print (tags_text)
+            # Get all tags of this image
+            tags_username = TagUsername.objects.filter(image__id=i[7]).values_list('name__username', 'w', 'h', 'x', 'y')
+            print (tags_username)
+            faces = []
+            objects = []
+            for t in tags_text:
+                if t[1] is None and t[2] is None and t[3] is None and t[4] is None:
+                    objects.append(t[0])
+                else:
+                    print ('ylawhy')
+                    faces.append({'name': t[0],
+                                'w': t[1],
+                                'h': t[2],
+                                'x': t[3],
+                                'y': t[4],
+                                'user_flag': False})
+            for t in tags_username:
+                print ('ylawhy')
+                faces.append({'name': t[0],
+                            'w': t[1],
+                            'h': t[2],
+                            'x': t[3],
+                            'y': t[4],
+                            'user_flag': True})
             if tag not in albums:
                 albums[tag] = []
-            temp = {'image_url': image_url, 'user_flag': False,'w': i[3],'h': i[4],'x': i[5],'y': i[6]}
+            temp = {'url': image_url,
+                    'faces': faces,
+                    'caption': i[8],
+                    'objects': objects}
             albums[tag].append(temp)
-        # print (albums)
         return Response(albums)
