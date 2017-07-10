@@ -155,7 +155,7 @@ class RenderImage(APIView):
             for tag in tags:
                 params.append({'tag': tag})
         query = []
-        output = {}
+        output = []
         # print (tags)
         from django.db.models import Q
         import functools
@@ -222,20 +222,21 @@ class RenderImage(APIView):
                                     'x': t[3],
                                     'y': t[4],
                                     'user_flag': False})
-                    if url not in output:
-                        output[url] = []
+                    # if url not in output:
+                    #     output[url] = []
                     temp = {
+                        'url': url,
                         'faces': faces,
                         'caption': image[1],
                         'objects': objects}
-                output[url].append(temp)
+                output.append(temp)
                 # print (faces)
                 # print (tag_usernames)
         #         output.append(image.image.url)
         # # print (i)
         # print (output)
         # print (set(output))
-        return Response(output)
+        return Response({'images' :output})
 
 class AddTag(APIView):
     permission_classes = (permissions.IsAuthenticated,)
