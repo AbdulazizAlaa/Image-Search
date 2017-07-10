@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^suggestions/?$', views.getSuggestions().as_view()),
     url(r'^myphotos/?$', views.MyPhotosFolder().as_view()),
     url(r'^photosOfMe/?$', views.photosOfMe().as_view()),
-
+    url(r'^myphotosmob/?$', views.MyPhotosMob().as_view()),
+    url(r'^photosofmemob/?$', views.PhotosOfMeMob().as_view()),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)  # no need
