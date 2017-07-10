@@ -637,7 +637,7 @@ class MyPhotosMob(APIView):
             albums.append({'name': tag, 'image': images})
             print (albums)
         # print (albums)
-        return Response({'albums': albums})
+        return Response(albums)
 
 
 class PhotosOfMeMob(APIView):
@@ -698,4 +698,4 @@ class PhotosOfMeMob(APIView):
                         'caption': caption,
                         'objects': objects})
             albums.append({'name': tag, 'image': images})
-        return Response({'albums': albums})
+        return Response(albums)
