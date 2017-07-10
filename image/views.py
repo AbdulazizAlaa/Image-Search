@@ -51,11 +51,15 @@ class ImageUpload(APIView):
                                                 'captions_generation_engine': True})
 
             results = engine.processImage(image_data)
-
-            objects = results['objects']
-            faces = results['faces']
-            caption = results['captions']
-
+            try:
+                objects = results['objects']
+                faces = results['faces']
+                caption = results['captions']
+            except Exception as e:
+                objects = []
+                faces = []
+                caption = []
+                raise
             # objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
             # caption = "random caption for random image"
             # faces = {}
