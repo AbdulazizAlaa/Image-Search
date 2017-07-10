@@ -45,24 +45,24 @@ class ImageUpload(APIView):
 
             image_data = cv2.imread(image_file)
 
-            # engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
-            #                                     'face_recognition': 'facenet',
-            #                                     'object_detection_recognition': 'inception',
-            #                                     'captions_generation_engine': True})
+            engine = vision_engine.VisionEngine({'face_detection': 'MTCNN_engine',
+                                                'face_recognition': 'facenet',
+                                                'object_detection_recognition': 'inception',
+                                                'captions_generation_engine': True})
 
-            # results = engine.processImage(image_data)
-            # try:
-            #     objects = results['objects']
-            #     faces = results['faces']
-            #     caption = results['captions']
-            # except Exception as e:
-            #     objects = []
-            #     faces = []
-            #     caption = []
-            #     raise
-            objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
-            caption = "random caption for random image"
-            faces = []
+            results = engine.processImage(image_data)
+            try:
+                objects = results['objects']
+                faces = results['faces']
+                caption = results['captions']
+            except Exception as e:
+                objects = []
+                faces = []
+                caption = []
+                raise
+            # objects = ['backpack', 'backpack1', 'back pack', 'knapsack', 'packsack', 'rucksack', 'haversack']
+            # caption = "random caption for random image"
+            # faces = []
             print ('objects', objects)
             print('faces', faces)
             print('caption', caption)
@@ -637,7 +637,7 @@ class MyPhotosMob(APIView):
             albums.append({'name': tag, 'image': images})
             print (albums)
         # print (albums)
-        return Response(albums)
+        return Response({'albums': albums})
 
 
 class PhotosOfMeMob(APIView):
@@ -698,4 +698,4 @@ class PhotosOfMeMob(APIView):
                         'caption': caption,
                         'objects': objects})
             albums.append({'name': tag, 'image': images})
-        return Response(albums)
+        return Response({'albums': albums})
