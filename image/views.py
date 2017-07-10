@@ -334,13 +334,19 @@ class AddTag(APIView):
 
 
 class getSuggestions(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         q = request.GET.get("q")
+        username = request.user.id
         # icontains acts as LIKE in sql, icontains is case insensitive
+        usernames = TagUsername.objects.filter(image__uploaded_by=username, name__username__icontains=q).values_list('name__username').distinct()
+        texts = TagText.objects.filter(image__uploaded_by=username, name__tag__icontains=q).values_list('name__tag').distinct()
         search = []
-        usernames = User.objects.filter(username__icontains=q).values_list('username')
-        texts = Tag.objects.filter(tag__icontains=q).values_list('tag')
-        print ((usernames))
+        print (usernames)
+        print (texts)
+        # usernames = User.objects.filter(username__icontains=q).values_list('username')
+        # texts = Tag.objects.filter(tag__icontains=q).values_list('tag')
+        # print ((usernames))
         for name in usernames:
             search.append({'name': name[0], 'user_flag': True})
         for name in texts:
