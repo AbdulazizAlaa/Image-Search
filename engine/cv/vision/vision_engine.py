@@ -49,7 +49,7 @@ class VisionEngine():
                             data_dir=self.__face_data_dir,
                             classifier_filename=self.__face_classifier,
                             model=self.__face_model,
-                            classifier_type=FacenetEngine.NEURAL_NETWORK, #LINEAR_SVM, RBF_SVM, DECISION_TREE, RANDOM_FOREST, NEURAL_NETWORK, ADA_BOOST
+                            classifier_type=FacenetEngine.RANDOM_FOREST, #LINEAR_SVM, RBF_SVM, DECISION_TREE, RANDOM_FOREST, NEURAL_NETWORK, ADA_BOOST
                             max_features=None,#None, auto, sqrt, log2
                             max_depth=5, n_estimators=100,
                             hidden_layer_sizes=(1000, 200))
@@ -136,6 +136,19 @@ class VisionEngine():
         self.__faceRecognitionEngine.train()
         print("Training Finished")
 
+    def detect_faces(self, img):
+        img, face_images, faces_rects = self.__faceDetectionEngine.detect_faces(img)
+        return [face_images, faces_rects]
+
+    def predict_face(self, face_images):
+        face_predictions = self.__faceRecognitionEngine.predict_proba(face_images)
+        return face_predictions
+
+    def train_face_classifier(self):
+        print("Training Classifier")
+        self.__faceRecognitionEngine.train()
+        print("Training Finished")
+        return
 
     def processImage(self, img):
 

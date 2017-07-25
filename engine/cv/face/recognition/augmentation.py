@@ -41,6 +41,8 @@ def augment(images_dir, num_iter_per_image=20, npy_file='face_images.npy'):
     for k in jobs:
         k.join()
 
+    return [None, None]
+
     images, labels = read_images(augmented_dir, folder, npy_file)
 
     return [images, labels]
@@ -69,6 +71,7 @@ def read_images(augmented_dir, folder, npy_file):
         images.extend(loaded_images)
         labels.extend(loaded_labels)
         print("Loaded")
+
 
     print('-----------------')
     print('num images: ', len(images))

@@ -47,14 +47,16 @@ class FacenetEngine(FaceRecognitionInterface):
         self.__model = model
         self.__classifier_type = classifier_type
 
-        self.__classifiers = { 'linear_svm' : SVC(kernel="linear", C=0.025, probability=True),
-                                'rbf_svm' : SVC(gamma=2, C=1, probability=True),
-                                'decision_tree' : DecisionTreeClassifier(max_depth=max_depth),
-                                'random_forest' : RandomForestClassifier(max_depth=max_depth, n_estimators=n_estimators, max_features=max_features),
-                                'fully_connected' : MLPClassifier(alpha=1, hidden_layer_sizes=hidden_layer_sizes),
-                                'ada_boost' : AdaBoostClassifier(n_estimators=n_estimators)}
+        # self.__classifiers = { 'linear_svm' : SVC(kernel="linear", C=0.025, probability=True),
+        #                         'rbf_svm' : SVC(gamma=2, C=1, probability=True),
+        #                         'decision_tree' : DecisionTreeClassifier(max_depth=max_depth),
+        #                         'random_forest' : RandomForestClassifier(max_depth=max_depth, n_estimators=n_estimators, max_features=max_features),
+        #                         'fully_connected' : MLPClassifier(alpha=1, hidden_layer_sizes=hidden_layer_sizes),
+        #                         'ada_boost' : AdaBoostClassifier(n_estimators=n_estimators)}
 
-        self.__classifier = self.__classifiers[classifier_type]
+        # self.__classifier = self.__classifiers[classifier_type]
+        self.__classifier = RandomForestClassifier(n_estimators=n_estimators, n_jobs=7)
+
 
     def train(self):
         with tf.Graph().as_default():
@@ -70,14 +72,16 @@ class FacenetEngine(FaceRecognitionInterface):
                     assert(len(cls.image_paths)>0, 'There must be at least one image for each class in the dataset')
 
                 # TODO remove this read dataset
-                # paths, labels = facenet.get_image_paths_and_labels(dataset)
+                paths, labels = facenet.get_image_paths_and_labels(dataset)
 
-                print(self.__data_dir)
-                images_list, labels = augment(self.__data_dir, 5)
-                print(len(images_list))
+                # print(self.__data_dir)
+                # images_list, labels = augment(self.__data_dir, 50)
+                #
+                # print(len(images_list))
 
                 print('Number of classes: %d' % len(dataset))
-                print('Number of images: %d' % len(images_list))
+                print('Number of images: %d' % len(paths))
+                # print('Number of images: %d' % len(images_list))
 
                 # Load the model
                 print('Loading feature extraction model')
@@ -91,12 +95,21 @@ class FacenetEngine(FaceRecognitionInterface):
 
                 # Run forward pass to calculate embeddings
                 print('Calculating features for images')
-                nrof_images = len(images_list)
+                nrof_images = len(paths)
+                # nrof_images = len(images_list)
                 nrof_batches_per_epoch = int(math.ceil(1.0*nrof_images / self.__batch_size))
                 emb_array = np.zeros((nrof_images, embedding_size))
 
-                feed_dict = { images_placeholder:images_list, phase_train_placeholder:False }
-                emb_array[:,:] = sess.run(embeddings, feed_dict=feed_dict)
+                for i in range(nrof_batches_per_epoch):
+                    start_index = i*self.__batch_size
+                    end_index = min((i+1)*self.__batch_size, nrof_images)
+                    paths_batch = paths[start_index:end_index]
+
+                    # images = images_list[start_index:end_index]
+                    images = facenet.load_data(paths_batch, False, False, self.__image_size)
+
+                    feed_dict = { images_placeholder:images, phase_train_placeholder:False }
+                    emb_array[start_index:end_index,:] = sess.run(embeddings, feed_dict=feed_dict)
 
                 classifier_filename_exp = os.path.expanduser(self.__classifier_filename)
 
@@ -123,6 +136,7 @@ class FacenetEngine(FaceRecognitionInterface):
 
                 np.random.seed(seed=self.__seed)
 
+
                 # Load the model
                 print('Loading feature extraction model')
                 facenet.load_model(self.__model)
@@ -135,13 +149,25 @@ class FacenetEngine(FaceRecognitionInterface):
 
                 # Run forward pass to calculate embeddings
                 print('Calculating features for images')
-                images = np.empty((len(imgs), self.__image_size, self.__image_size, 3), dtype='uint8')
-                imgs = np.asarray(imgs)
-                i = 0
-                for face in imgs:
-                    face = cv2.resize(face, (self.__image_size, self.__image_size))
-                    images[i, :, :, :] = face[:, :, :]
-                    i = i+1
+                images = facenet.load_data(imgs, False, False, self.__image_size)
+                # images = np.zeros((len(imgs), self.__image_size, self.__image_size, 3), dtype='uint8')
+                # # imgs = np.asarray(imgs)
+                # for i in range(len(imgs)):
+                #     # cv2.imshow('before', imgs[i])
+                #
+                #     w, h, c = imgs[i].shape
+                #     if w>self.__image_size or h>self.__image_size :
+                #         zero_image = cv2.resize(imgs[i], (self.__image_size, self.__image_size))
+                #     else:
+                #         zero_image = np.ones((self.__image_size, self.__image_size, 3), dtype='uint8')
+                #         zero_image[0:w, 0:h, :] = imgs[i]
+                #
+                #
+                #     # cv2.imshow('after', zero_image)
+                #     # cv2.waitKey(0)
+                #     images[i, :, :, :] = zero_image[:, :, :]
+
+                # face_predictions = []
                 feed_dict = { images_placeholder:images, phase_train_placeholder:False }
                 emb_array = sess.run(embeddings, feed_dict=feed_dict)
 
@@ -151,8 +177,11 @@ class FacenetEngine(FaceRecognitionInterface):
                 print('Testing classifier')
                 with open(classifier_filename_exp, 'rb') as infile:
                     (self.__classifier, class_names) = pickle.load(infile)
+                print (class_names)
 
                 print('Loaded classifier model from file "%s"' % classifier_filename_exp)
+
+                # emb_array = np.load("/home/abdulaziz/workspace/Machine Learning/graduation_project/engine/cv/data/face_images_embeddings.npy")
 
                 predictions = self.__classifier.predict_proba(emb_array)
                 best_class_indices = np.argmax(predictions, axis=1)
@@ -171,8 +200,8 @@ class FacenetEngine(FaceRecognitionInterface):
                         name = name_parts[0]
                         user_flag = False
 
-                    face_predictions.append({'name': name, 'user_flag': user_flag})
-                    # print('%4d %s: %.3f' %
-                    # (i, class_names[best_class_indices[i]], best_class_probabilities[i]))
+                    face_predictions.append({'name': name, 'probability':best_class_probabilities[i], 'user_flag': user_flag})
+                    print('%4d %s: %.3f' %
+                    (i, class_names[best_class_indices[i]], best_class_probabilities[i]))
 
                 return face_predictions
